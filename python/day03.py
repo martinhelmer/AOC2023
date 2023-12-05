@@ -11,6 +11,7 @@ example = """
 ......755.
 ...$.*....
 .664.598..""".strip().split()
+NAME = "Gear Ratios"
 
 input = util.get_input("day03")
 
@@ -71,16 +72,20 @@ def parse_neighbors(engine):
                 numbers.append((this_number, stuffaround)) 
     return numbers 
 
+part1_answer = 544664
+
 def part1(engine):
     part_numbers = [a for a,b in parse_neighbors(engine) if b]
-    print(sum(part_numbers))
+    return(sum(part_numbers))
 
+
+part2_answer = 84495585
 def part2(engine):
     pn = parse_neighbors(engine) 
     d = defaultdict(list)
     for num, parts in pn :
         for part in parts:
-            print(part)
+            #print(part)
             t,c = part
             if t == "*":
                 d[part].append(num)
@@ -88,4 +93,4 @@ def part2(engine):
     for v in d.values():
         if len(v) == 2:
             gear_ratios.append(v[0]*v[1])
-    print(sum(gear_ratios))
+    return(sum(gear_ratios))
