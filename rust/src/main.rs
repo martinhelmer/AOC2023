@@ -1,8 +1,14 @@
 use std::env;
+use std::time::Instant;
+
+mod day01; 
+mod util; 
 
 fn runday(e: &String) {
     match e.as_str() {
-        "day01" => println!("Day 1"),
+        "day01" => {day01::part01(); day01::part02()} ,
+        "day01b" => {day01::part01b(); day01::part02b()} ,
+        "day01c" => {day01::part01c(); day01::part02c()} ,
         "day02" => println!("Day 2"),
         _ => println!("N/A"),
     }
@@ -10,6 +16,12 @@ fn runday(e: &String) {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let day = &args[1];
-    runday(day);
+    if args.len() < 2 {
+        println!("Running ALL days") 
+    } else
+    {let day = &args[1];
+     let now = Instant::now();
+     runday(day);
+     let elapsed = now.elapsed();
+     println!("Elapsed: {:.2?}", elapsed); }
 }
