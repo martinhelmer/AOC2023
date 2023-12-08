@@ -155,5 +155,3 @@ def part2(inpout):
     powers = [power(line) for line in input]
     return(sum(powers))
 
-print(part1(input))
-print(part2(input))
