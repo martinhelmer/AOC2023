@@ -1,7 +1,8 @@
 use crate::util;
 use array2d::Array2D;
 use std::collections::BTreeMap;
-use std::collections::HashMap;
+
+pub const NAME :&str = "Day 3: Gear Ratios";
 
 pub fn data() -> String {
     let contents: String = util::get_input("day03.txt");
@@ -40,39 +41,33 @@ enum States {
     OnDigit,
 }
 
-fn check_pp(a: &Array2D<char>, pp: (isize, isize)) -> Option<char> {
-    if pp.0 < 0 || pp.1 < 0 || pp.0 >= a.num_rows() as isize || pp.1 >= a.num_columns() as isize {
+fn symbol_at_point(a: &Array2D<char>, point: (isize, isize)) -> Option<char> {
+    if point.0 < 0
+        || point.1 < 0
+        || point.0 >= a.num_rows() as isize
+        || point.1 >= a.num_columns() as isize
+    {
         return None;
     }
-    let s = a[(pp.0 as usize, pp.1 as usize)];
-    match s == '.' || s.is_digit(10) {
-        true => return None,
-        false => return Some(s),
+    let s = a[(point.0 as usize, point.1 as usize)];
+    if s == '.' || s.is_digit(10) {
+        return None;
     }
+    return Some(s);
 }
 
 fn addsymbs(
     a: &Array2D<char>,
     symbs: &mut Vec<Symbol>,
-    op: (isize, isize),
+    pos: (isize, isize),
     dirs: Vec<(isize, isize)>,
 ) {
-    for p in dirs.iter().map(|d| (op.0 + d.0, op.1 + d.1)) {
-        match check_pp(a, p) {
+    for p in dirs.iter().map(|d| (pos.0 + d.0, pos.1 + d.1)) {
+        match symbol_at_point(a, p) {
             Some(s) => symbs.push(Symbol { s, p }),
             None => continue,
         }
     }
-}
-
-fn SN() -> Vec<(isize, isize)> {
-    vec![(-1, -1), (-1, 0), (0, -1), (1, -1), (1, 0)]
-}
-fn MN() -> Vec<(isize, isize)> {
-    vec![(-1, 0), (1, 0)]
-}
-fn EN() -> Vec<(isize, isize)> {
-    vec![(-1, 0), (0, 0), (1, 0)]
 }
 
 fn partnumbers(a: &Array2D<char>) -> Vec<PartNumber> {
@@ -91,12 +86,22 @@ fn partnumbers(a: &Array2D<char>) -> Vec<PartNumber> {
                     state = States::OnDigit;
                     number = (c as u8 - '0' as u8) as usize;
                     currsymbs = vec![];
-                    addsymbs(a, &mut currsymbs, (row as isize, col as isize), SN());
+                    addsymbs(
+                        a,
+                        &mut currsymbs,
+                        (row as isize, col as isize),
+                        vec![(-1, -1), (-1, 0), (0, -1), (1, -1), (1, 0)],
+                    );
                 }
                 (States::OnDigit, false) => {
                     // end number
                     state = States::OffDigit;
-                    addsymbs(a, &mut currsymbs, (row as isize, col as isize), EN());
+                    addsymbs(
+                        a,
+                        &mut currsymbs,
+                        (row as isize, col as isize),
+                        vec![(-1, 0), (0, 0), (1, 0)],
+                    );
                     if currsymbs.len() > 0 {
                         pn.push(PartNumber {
                             number,
@@ -107,7 +112,12 @@ fn partnumbers(a: &Array2D<char>) -> Vec<PartNumber> {
                 (States::OnDigit, true) => {
                     // continue number
                     number = number * 10 + (c as u8 - '0' as u8) as usize;
-                    addsymbs(a, &mut currsymbs, (row as isize, col as isize), MN());
+                    addsymbs(
+                        a,
+                        &mut currsymbs,
+                        (row as isize, col as isize),
+                        vec![(-1, 0), (1, 0)],
+                    );
                 }
             }
         }
@@ -121,7 +131,6 @@ fn partnumbers(a: &Array2D<char>) -> Vec<PartNumber> {
     }
     pn
 }
-
 
 pub fn part01(data: &str) {
     let l: Vec<Vec<char>> = data.lines().map(|q| q.chars().collect()).collect();

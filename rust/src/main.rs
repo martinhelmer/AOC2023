@@ -1,33 +1,119 @@
 use std::env;
 use std::time::Instant;
 
-mod day01; 
+mod day01;
 mod day02;
 mod day03;
-mod util; 
+mod day04;
+mod day05;
+mod day11;
+mod day12;
+
+mod util;
 
 fn runday(e: &String) {
     match e.as_str() {
-        "day01" => {day01::part01(); day01::part02()} ,
-        "day01b" => {day01::part01b(); day01::part02b()} ,
-        "day01c" => {day01::part01c(); day01::part02c()} ,
-        "day02" => {day02::part01(&day02::data()); 
-                    day02::part02(&day02::data())}
-        "ex02" => day02::part01(&day02::example()),
-        "day03" => {day03::part01(&day03::data())},
-        "ex03" => {day03::part01(&day03::example())},
+        "day01" => {
+            day01::part01(day01::data());
+            day01::part02(day01::data());
+        }
+        "day01b" => {
+            day01::part01b();
+            day01::part02b()
+        }
+        "day01c" => {
+            day01::part01c();
+            day01::part02c()
+        }
+        "day02" => {
+            day02::part01(day02::data());
+            day02::part02(day02::data());
+        }
+        "ex02" => {
+            day02::part01(day02::example());
+        }
+        "day03" => day03::part01(&day03::data()),
+        "ex03" => day03::part01(&day03::example()),
+        "day04" => {
+            day04::part01(day04::data());
+            day04::part02(day04::data());
+        }
+        "ex04" => {
+            day04::part01(day04::example());
+            day04::part02(day04::example());
+        }
+        "day05" => {
+            day05::part01(day05::data());
+            day05::part02(day05::data());
+        }
+        "day11" => {
+            day11::part01(day11::data());
+            day11::part02(day11::data());
+            ()
+        }
+        "ex11" => {
+            day11::part01(day11::example());
+            day11::part02(day11::example());
+            ()
+        }
+        "day12" => {
+            day12::part01(day12::data());
+            day12::part02(day12::data());
+            ()
+        }
+
         _ => println!("N/A"),
     }
 }
 
+fn get_module_stuff(
+    s: &String,
+) -> (
+    &'static str,
+    fn() -> String,
+    fn(String) -> usize,
+    fn(String) -> usize,
+) {
+    match s.as_str() {
+        "day01" => (day01::NAME, day01::data, day01::part01, day01::part02),
+        "day02" => (day02::NAME, day02::data, day02::part01, day02::part02),
+        // "day03" => (day03::NAME, day03::data, day03::part01, day03::part02),
+        "day04" => (day04::NAME, day04::data, day04::part01, day04::part02),
+        "day05" => (day05::NAME, day05::data, day05::part01, day05::part02),
+        "day11" => (day11::NAME, day11::data, day11::part01, day11::part02),
+        _ => panic!("GAH!"),
+    }
+}
+fn runday2(e: &String) {
+    let now = Instant::now();
+    let (n, data, p1, p2) = get_module_stuff(e);
+    let p1_now = Instant::now();
+    let p1_result = p1(data());
+    let p1_elapsed = p1_now.elapsed();
+    let p2_now = Instant::now();
+    let p2_result = p2(data());
+    let p2_elapsed = p2_now.elapsed();
+    println!(
+        "{:<35} | {:>20} | {:>20} |",
+        n,
+        p1_elapsed.as_micros(),
+        p2_elapsed.as_micros()
+    );
+}
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Running ALL days") 
-    } else
-    {let day = &args[1];
-     let now = Instant::now();
-     runday(day);
-     let elapsed = now.elapsed();
-     println!("Elapsed: {:.2?}", elapsed); }
+        println!("Running ALL days");
+        runday2(&String::from("day01"));
+        runday2(&String::from("day02"));
+        runday2(&String::from("day04"));
+        runday2(&String::from("day05"));
+        runday2(&String::from("day11"));
+    } else {
+        let day = &args[1];
+        let now = Instant::now();
+        runday(day);
+        let elapsed = now.elapsed();
+        println!("Elapsed: {:.2?}", elapsed);
+    }
 }

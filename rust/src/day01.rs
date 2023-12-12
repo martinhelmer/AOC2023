@@ -1,4 +1,9 @@
 use crate::util;
+pub const NAME :&str = "Day 1: Trebuchet?! ";
+
+pub fn data() -> String {
+    util::get_input("day01.txt")
+}
 
 const W: [&[u8]; 10] = [
     b"zero", b"one", b"two", b"three", b"four", b"five", b"six", b"seven", b"eight", b"nine",
@@ -35,24 +40,39 @@ where
 }
 
 // 55386
-pub fn part01() {
-    let contents: String = util::get_input("day01.txt");
+pub fn part01(contents: String) -> usize {
     let qq: usize = contents
         .lines()
         .map(|s: &str| find_digit(s, false) * 10 + find_digit_reverse(s, false))
         .sum();
-    println!("{}", qq)
+    qq
 }
 
-// 54824
-pub fn part02() {
-    let contents = util::get_input("day01.txt");
+/*
+54824
+*/
+pub fn part02(contents: String) -> usize {
     let qq: usize = contents
         .lines()
         .map(|s: &str| find_digit(s, true) * 10 + find_digit_reverse(s, true))
         .sum();
-    println!("{}", qq)
+    qq
 }
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn part01() {
+        assert_eq!(super::part01(data()), 55386);
+    }
+    #[test]
+    fn part02() {
+        assert_eq!(super::part02(data()), 54824);
+    }
+}
+
 
 // other ppls solutions
 pub fn part01b() {

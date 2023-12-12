@@ -1,6 +1,8 @@
 use crate::util;
 use std::{cmp::max, usize};
 
+pub const NAME :&str = "Day 2: Cube Conundrum";
+
 pub fn data() -> String {
     let contents: String = util::get_input("day02.txt");
     contents
@@ -16,10 +18,10 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
     )
 }
 
-fn line() -> String {
-    let s = String::from("Game 9: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green");
-    s
-}
+// fn line() -> String {
+//     let s = String::from("Game 9: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green");
+//     s
+// }
 
 #[derive(Debug)]
 struct Game {
@@ -67,23 +69,23 @@ fn ok1(g: &Game) -> bool {
 }
 
 // 2512
-pub fn part01(data: &str) {
+pub fn part01(data: String) -> usize{
     let s : usize = data
         .lines()
         .map(parse_game)
         .filter(ok1)
         .map(|g| g.number )
         .sum();
-    println!("{:?}", s)
+    s
 }
 
 // 67335
-pub fn part02(data: &str) {
+pub fn part02(data: String) -> usize {
     let s : usize = data
         .lines()
         .map(parse_game)
         .map(|g| g.red * g.green * g.blue )
         .sum();
-    println!("{:?}", s)
+    s
 }
 

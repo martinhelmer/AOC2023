@@ -5,10 +5,12 @@ import day04
 import day05 
 import day06 
 import day07 
+import day09
+import day10 
 
 import time 
 
-modules = [day02, day03, day04, day05, day06, day07]
+modules = [day02, day03, day04, day05, day06, day07, day09, day10]
 for d in modules:
     s = time.time()
     v = d.part1(d.input)
