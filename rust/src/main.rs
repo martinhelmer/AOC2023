@@ -8,6 +8,7 @@ mod day04;
 mod day05;
 mod day11;
 mod day12;
+mod day13;
 
 mod util;
 
@@ -32,8 +33,12 @@ fn runday(e: &String) {
         "ex02" => {
             day02::part01(day02::example());
         }
-        "day03" => day03::part01(&day03::data()),
-        "ex03" => day03::part01(&day03::example()),
+        "day03" => {
+            day03::part01(day03::data());
+        }
+        "ex03" => {
+            day03::part01(day03::example());
+        }
         "day04" => {
             day04::part01(day04::data());
             day04::part02(day04::data());
@@ -57,8 +62,13 @@ fn runday(e: &String) {
             ()
         }
         "day12" => {
-            day12::part01(day12::data());
-            day12::part02(day12::data());
+            println!("{}", day12::part01(day12::data()));
+            println!("{}", day12::part02(day12::data()));
+            ()
+        }
+        "day13" => {
+            println!("34911 ={}", day13::part01(day13::data()));
+            println!("33183 ={}", day13::part02(day13::data()));
             ()
         }
 
@@ -77,21 +87,22 @@ fn get_module_stuff(
     match s.as_str() {
         "day01" => (day01::NAME, day01::data, day01::part01, day01::part02),
         "day02" => (day02::NAME, day02::data, day02::part01, day02::part02),
-        // "day03" => (day03::NAME, day03::data, day03::part01, day03::part02),
+        "day03" => (day03::NAME, day03::data, day03::part01, day03::part02),
         "day04" => (day04::NAME, day04::data, day04::part01, day04::part02),
         "day05" => (day05::NAME, day05::data, day05::part01, day05::part02),
         "day11" => (day11::NAME, day11::data, day11::part01, day11::part02),
-        _ => panic!("GAH!"),
+        "day12" => (day12::NAME, day12::data, day12::part01, day12::part02),
+        "day13" => (day13::NAME, day13::data, day13::part01, day13::part02),
+        _ => panic!("main: no match!"),
     }
 }
 fn runday2(e: &String) {
-    let now = Instant::now();
     let (n, data, p1, p2) = get_module_stuff(e);
     let p1_now = Instant::now();
-    let p1_result = p1(data());
+    let _p1_result = p1(data());
     let p1_elapsed = p1_now.elapsed();
     let p2_now = Instant::now();
-    let p2_result = p2(data());
+    let _p2_result = p2(data());
     let p2_elapsed = p2_now.elapsed();
     println!(
         "{:<35} | {:>20} | {:>20} |",
@@ -106,9 +117,12 @@ fn main() {
         println!("Running ALL days");
         runday2(&String::from("day01"));
         runday2(&String::from("day02"));
+        runday2(&String::from("day03"));
         runday2(&String::from("day04"));
         runday2(&String::from("day05"));
         runday2(&String::from("day11"));
+        runday2(&String::from("day12"));
+        runday2(&String::from("day13"));
     } else {
         let day = &args[1];
         let now = Instant::now();

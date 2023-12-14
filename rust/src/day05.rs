@@ -1,10 +1,10 @@
-use std::cmp::Ordering;
-
-use itertools::any;
+#![allow(unused)]
 
 use crate::util;
+use itertools::any;
+use std::cmp::Ordering;
 
-pub const NAME :&str = "Day 5: If You Give A Seed A Fert.";
+pub const NAME: &str = "Day 5: If You Give A Seed A Fert.";
 
 pub fn data() -> String {
     util::get_input("day05.txt")
@@ -60,19 +60,17 @@ impl Ord for SubMap {
     }
 }
 
-fn apply_submap_on_seedrange(m : SubMap, sr : (usize, usize)) -> Vec<(usize, usize)> {
+fn apply_submap_on_seedrange(m: SubMap, sr: (usize, usize)) -> Vec<(usize, usize)> {
     // map out if range
     if m.from.0 >= sr.1 || m.from.1 <= sr.0 {
         return vec![sr];
     }
     // seed fully inside
     if m.from.0 <= sr.0 && sr.1 <= m.from.1 {
-        return vec!((submap(&m, sr.0).unwrap(), submap(&m, sr.1-1).unwrap()));
+        return vec![(submap(&m, sr.0).unwrap(), submap(&m, sr.1 - 1).unwrap())];
     }
     vec![sr]
 }
-
-
 
 #[derive(Debug)]
 struct Map {
@@ -86,7 +84,6 @@ fn parse_submap(s: &str) -> SubMap {
         to: (ints[0], ints[0] + ints[2]),
     }
 }
-
 
 fn parse_map(s: &str) -> Map {
     Map { submaps: vec![] }
@@ -105,7 +102,6 @@ fn rev_submap(sm: &SubMap, x: usize) -> Option<usize> {
     }
 }
 
-
 fn applymap(m: &Map, x: usize) -> usize {
     match m.submaps.iter().map(|sm| submap(sm, x)).flatten().next() {
         Some(i) => i,
@@ -113,9 +109,14 @@ fn applymap(m: &Map, x: usize) -> usize {
     }
 }
 
-
 fn applymap_rev(m: &Map, x: usize) -> usize {
-    match m.submaps.iter().map(|sm| rev_submap(sm, x)).flatten().next() {
+    match m
+        .submaps
+        .iter()
+        .map(|sm| rev_submap(sm, x))
+        .flatten()
+        .next()
+    {
         Some(i) => i,
         None => x,
     }
@@ -126,12 +127,11 @@ fn parse_seeds(s: &str) -> Vec<usize> {
 }
 
 fn parse_seed_ranges(s: &str) -> Vec<(usize, usize)> {
-    let binding= util::s_to_ints(s.split_once(":").unwrap().1).unwrap();
-    let i : Vec<_>= binding.chunks(2).collect();
-    let ranges = i.iter().map(|c|(c[0],c[0]+c[1])).collect();
+    let binding = util::s_to_ints(s.split_once(":").unwrap().1).unwrap();
+    let i: Vec<_> = binding.chunks(2).collect();
+    let ranges = i.iter().map(|c| (c[0], c[0] + c[1])).collect();
     ranges
 }
-
 
 fn parse_maps(s: &[&str]) -> Vec<Map> {
     s.iter().fold(vec![], |mut acc, l| {
@@ -162,28 +162,29 @@ pub fn part01(data: String) -> usize {
     let lines: Vec<&str> = data.lines().collect();
     let seeds: Vec<usize> = parse_seeds(&lines[0]);
     let maps: Vec<Map> = parse_maps(&lines[1..]);
-    let minloc:usize = seeds.iter().map(|s|doseed(&maps, *s)).min().unwrap();
+    let minloc: usize = seeds.iter().map(|s| doseed(&maps, *s)).min().unwrap();
 
-    println!("{:?}",minloc);
+    // println!("{:?}", minloc);
     minloc
 }
 
-fn is_seed(s:usize, seeds:&Vec<(usize, usize)> ) -> bool{
-    any(seeds, |(a,b)| a <= &s && &s < b)
+fn is_seed(s: usize, seeds: &Vec<(usize, usize)>) -> bool {
+    any(seeds, |(a, b)| a <= &s && &s < b)
 }
 //137 516 820
-pub fn part02(data: String) -> usize{
+pub fn part02(data: String) -> usize {
     let lines: Vec<&str> = data.lines().collect();
     let seeds: Vec<(usize, usize)> = parse_seed_ranges(&lines[0]);
     let maps: Vec<Map> = parse_maps(&lines[1..]);
-    let rmap: Vec<Map>= maps.into_iter().rev().collect();
-    for (i,s) in (0..).map(|s|doseed_rev(&rmap, s)).enumerate() {
+    let rmap: Vec<Map> = maps.into_iter().rev().collect();
+    for (i, s) in (0..).map(|s| doseed_rev(&rmap, s)).enumerate() {
         if is_seed(s, &seeds) {
-            println!("{}",i);
-            return s 
+            // println!("{}", i);
+            return s;
         }
-        if i % 1000000 == 0 {
-            println!("{} / {}",i, s) }
+        // if i % 1000000 == 0 {
+        //     println!("{} / {}", i, s)
+        // }
     }
     0
 }
@@ -194,6 +195,5 @@ mod test {
     #[test]
     fn part01() {
         println!("Hello");
-
-}
+    }
 }

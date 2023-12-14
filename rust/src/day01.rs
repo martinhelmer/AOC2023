@@ -61,7 +61,7 @@ pub fn part02(contents: String) -> usize {
 
 
 #[cfg(test)]
-mod test {
+mod test_result {
     use super::*;
     #[test]
     fn part01() {
