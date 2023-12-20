@@ -159,4 +159,4 @@ pub fn part01(data: String) -> usize{
     gearsum
 }
 
-pub fn part02(data: String) -> usize { 0 }
+pub fn part02(_data: String) -> usize { 0 }

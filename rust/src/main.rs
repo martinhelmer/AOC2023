@@ -9,6 +9,10 @@ mod day05;
 mod day11;
 mod day12;
 mod day13;
+mod day14; 
+mod day15;
+mod day17;
+mod day19;
 
 mod util;
 
@@ -67,11 +71,45 @@ fn runday(e: &String) {
             ()
         }
         "day13" => {
-            println!("34911 ={}", day13::part01(day13::data()));
-            println!("33183 ={}", day13::part02(day13::data()));
+            println!("34911 = {}", day13::part01(day13::data()));
+            println!("33183 = {}", day13::part02(day13::data()));
             ()
         }
-
+        "day14" => {
+            println!("109833 = {}", day14::part01(day14::data()));
+            println!("99875 = {}", day14::part02(day14::data()));
+            ()
+        }
+        "day15" => {
+            println!("504036 = {}", day15::part01(day15::data()));
+            println!("295719 = {}", day15::part02(day15::data()));
+            ()
+        }
+        "ex14" => {
+            println!("? = {}", day14::part01(day14::example()));
+            println!("64 = {}", day14::part02(day14::example()));
+            ()
+        }
+        "ex17" => {
+            println!("102 = {}", day17::part01(day17::example()));
+            println!("94 = {}", day17::part02(day17::example()));
+            ()
+        }
+        "day17" => {
+            println!("674 = {}", day17::part01(day17::data()));
+            println!("773 = {}", day17::part02(day17::data()));
+            ()
+        }
+        "day19" => {
+            println!("? = {}", day19::part01(day19::data()));
+            println!("? = {}", day19::part02(day19::data()));
+            ()
+        }
+        "ex19" => {
+            println!("? = {}", day19::part01(day19::example()));
+            println!("? = {}", day19::part02(day19::example()));
+            ()
+        }
         _ => println!("N/A"),
     }
 }
@@ -93,6 +131,10 @@ fn get_module_stuff(
         "day11" => (day11::NAME, day11::data, day11::part01, day11::part02),
         "day12" => (day12::NAME, day12::data, day12::part01, day12::part02),
         "day13" => (day13::NAME, day13::data, day13::part01, day13::part02),
+        "day14" => (day14::NAME, day14::data, day14::part01, day14::part02),
+        "day15" => (day15::NAME, day15::data, day15::part01, day15::part02),
+        "day17" => (day17::NAME, day17::data, day17::part01, day17::part02),
+        "day19" => (day19::NAME, day19::data, day19::part01, day19::part02),
         _ => panic!("main: no match!"),
     }
 }
@@ -123,6 +165,10 @@ fn main() {
         runday2(&String::from("day11"));
         runday2(&String::from("day12"));
         runday2(&String::from("day13"));
+        runday2(&String::from("day14"));
+        runday2(&String::from("day15"));
+        runday2(&String::from("day17"));
+        runday2(&String::from("day19"));
     } else {
         let day = &args[1];
         let now = Instant::now();
