@@ -1,6 +1,33 @@
 #![allow(unused)]
 use std::{fs, num::ParseIntError, cmp::Reverse} ;
 use array2d::Array2D;
+use std::ops;
+
+#[derive(Debug, Eq, Hash, PartialEq, Copy, Clone, Ord, PartialOrd)]
+pub struct Pos(pub i32, pub i32);
+#[derive(Debug, Eq, Hash, PartialEq, Copy, Clone, Ord, PartialOrd)]
+pub struct Dir(pub i32, pub i32);
+
+impl ops::Add<Dir> for Pos {
+    type Output = Pos;
+
+    fn add(self, _rhs: Dir) -> Pos {
+        Pos(self.0 + _rhs.0, self.1 + _rhs.1) 
+    }
+}
+
+impl Pos {
+    pub fn as_a2d_index(&self) -> (usize, usize) {
+        (self.0 as usize, self.1 as usize)
+    }
+}
+
+pub const EAST: Dir = Dir(0, 1);
+pub const WEST: Dir = Dir(0, -1);
+pub const NORTH: Dir = Dir(-1, 0);
+pub const SOUTH: Dir = Dir(1, 0);
+
+
 
 pub fn get_input(f : &str) -> String  {
     let contents = fs::read_to_string(["../input/",f].join(""))
@@ -19,7 +46,11 @@ fn string_as_int(s: &String) -> u32 {
         .fold(0, |acc, c| acc * 2 + if c == &b'#' { 1 } else { 0 })
 }
 
-// array
+// array ---------------------------------
+pub fn ok_pos<T>(a :& Array2D<T>, p: Pos) -> bool {
+    p.0 >= 0 && p.1 >= 0 && p.0 < (a.num_rows() as i32) && p.1 < a.num_columns() as i32
+}
+
 pub fn a2dc_to_grid(a :& Array2D<char>) -> String {
     let x : Vec<String> = a.rows_iter().map(|row| row.collect::<String>()).collect();
     x.join("\n")

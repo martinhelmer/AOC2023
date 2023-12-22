@@ -48,11 +48,11 @@ mod test_result {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(data()), 0);
+        assert_eq!(super::part01(data()), 425811);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(data()), 0);
+        assert_eq!(super::part02(data()), 131796824371749);
     }
 }
 #[cfg(test)]
@@ -60,11 +60,11 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 0);
+        assert_eq!(super::part01(example()), 19114);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part02(example()), 167409079868000);
     }
 }
 
@@ -306,9 +306,8 @@ fn get_list(workflows: &MM<String, Vec<Test>>, r: PartRange, workflow: &[Test]) 
     p1
 }
 pub fn part02(data: String) -> usize {
-    println!("Part 2");
     let (workflow, parts) = data.split_once("\n\n").unwrap();
-    let parts: Vec<Part> = parts.lines().map(parse_part).collect();
+    let _parts: Vec<Part> = parts.lines().map(parse_part).collect();
     let workflows: MM<String, Vec<Test>> = MM::from_iter(workflow.lines().map(parse_workflow));
     let l = get_list(&workflows, START_PR, workflows.get("in").unwrap());
     // println!("{:?}",l);
@@ -340,7 +339,7 @@ mod test_get_list {
 
     #[test]
     fn boo() {
-        let ws = MM::from_iter(WORKFLOWS.lines().map(parse_workflow));
+        let ws = MM::from_iter(_WORKFLOWS.lines().map(parse_workflow));
         println!(
             "{:?}",
             get_list(&ws, START_PR, &parse_workflow("in{s<1351:px,qqz}").1)

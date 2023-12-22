@@ -1,7 +1,7 @@
 use crate::util;
 use array2d::Array2D;
 use priority_queue::PriorityQueue;
-use std::collections::{BTreeMap as MM, HashSet};
+use std::collections::{BTreeMap as MM};
 
 pub const NAME: &str = "Day 17: Clumsy Crucible";
 

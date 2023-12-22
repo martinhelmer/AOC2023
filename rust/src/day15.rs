@@ -21,7 +21,7 @@ fn hash(s : &str ) -> usize {
 }
 
 mod test_hash {
-    use super::*;
+    
     #[test]
     fn HASH() {
         assert_eq!(super::hash("HASH"), 52);
@@ -71,7 +71,7 @@ pub fn part02(data: String) -> usize {
     let mut pqs : Vec<PriorityQueue<&str, isize>> = vec![];
     let mut values : HashMap<&str, usize> = HashMap::new();
     for _ in 00..256 {
-        let mut pq = PriorityQueue::new();
+        let pq = PriorityQueue::new();
         pqs.push(pq);
     }
     for (ix, instr) in data.trim().split(",").enumerate() {
