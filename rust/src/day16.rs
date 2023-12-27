@@ -123,7 +123,7 @@ pub fn part01(data: String) -> usize {
     let a = Array2D::from_rows(&vvc).unwrap();
     calc_energized(&a, Pos(0,0), EAST)
 }
-
+// TODO: parallelize
 pub fn part02(data: String) -> usize {
     let vvc: Vec<Vec<char>> = data.lines().map(|c| c.chars().collect()).collect();
     let a = Array2D::from_rows(&vvc).unwrap();

@@ -28,6 +28,13 @@ pub const NORTH: Dir = Dir(-1, 0);
 pub const SOUTH: Dir = Dir(1, 0);
 
 
+pub fn rl(dir: Dir) -> Dir {
+    Dir(-dir.1, dir.0)
+}
+
+pub fn rr(dir: Dir) -> Dir {
+    Dir(dir.1, -dir.0)
+}
 
 pub fn get_input(f : &str) -> String  {
     let contents = fs::read_to_string(["../input/",f].join(""))
@@ -47,6 +54,8 @@ fn string_as_int(s: &String) -> u32 {
 }
 
 // array ---------------------------------
+pub type Grid  = Array2D<char>; 
+
 pub fn ok_pos<T>(a :& Array2D<T>, p: Pos) -> bool {
     p.0 >= 0 && p.1 >= 0 && p.0 < (a.num_rows() as i32) && p.1 < a.num_columns() as i32
 }

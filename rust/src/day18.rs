@@ -1,7 +1,6 @@
 use crate::util;
-use crate::util::{ok_pos, Dir, Pos, EAST, NORTH, SOUTH, WEST};
+use crate::util::{ Dir, Pos, EAST, NORTH, SOUTH, WEST};
 use array2d::Array2D;
-use itertools::Itertools;
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
 use queues::{IsQueue, Queue};
@@ -105,14 +104,14 @@ pub fn part01(data: String) -> usize {
 
     let fill_pos = Pos(1,1);
     let mut q : Queue<Pos> = Queue::new();
-    q.add(fill_pos);
+    let _ = q.add(fill_pos);
     while  q.size() > 0 {
         p = q.remove().unwrap();
         if !land.contains(&p) {
             land.insert(p);
             for d in [NORTH, EAST, SOUTH, WEST] {
                 let np = p + d ;
-                q.add(np);
+                let _ = q.add(np);
             }
         }
     }

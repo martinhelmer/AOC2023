@@ -17,7 +17,8 @@ mod day18;
 mod day19;
 mod day20;
 mod day21;
-
+mod day22;
+mod day23;
 mod util;
 
 fn runday(e: &String) {
@@ -102,12 +103,10 @@ fn runday(e: &String) {
         "ex17" => {
             println!("102 = {}", day17::part01(day17::example()));
             println!("94 = {}", day17::part02(day17::example()));
-            ()
         }
         "day17" => {
             println!("674 = {}", day17::part01(day17::data()));
             println!("773 = {}", day17::part02(day17::data()));
-            ()
         }
         "day19" => {
             println!("? = {}", day19::part01(day19::data()));
@@ -146,6 +145,22 @@ fn runday(e: &String) {
         "day18" => {
             println!("? = {}", day18::part01(day18::data()));
             println!("? = {}", day18::part02(day18::data()));
+        }
+        "day22" => {
+            println!("509 = {}", day22::part01(day22::data()));
+            println!("? = {}", day22::part02(day22::data()));
+        }
+        "ex22" => {
+            println!("5 = {}", day22::part01(day22::example()));
+            println!("? = {}", day22::part02(day22::example()));
+        }
+        "day23" => {
+            println!("? = {}", day23::part01(day23::data()));
+            println!("? = {}", day23::part02(day23::data()));
+        }
+        "ex23" => {
+            println!("5 = {}", day23::part01(day23::example()));
+            println!("? = {}", day23::part02(day23::example()));
         }
         _ => println!("N/A"),
     }
