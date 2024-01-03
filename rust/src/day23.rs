@@ -1,6 +1,5 @@
 use std::{collections::{HashMap as MM, HashSet, BTreeSet}, cmp::max};
-use queues::{IsQueue, Queue};
-use itertools::{Group, Itertools};
+use itertools::Itertools;
 use priority_queue::PriorityQueue;
 
 use crate::util::{self, rl, rr, Dir, Grid, Pos, EAST, NORTH, SOUTH, WEST};
@@ -44,11 +43,11 @@ mod test_result {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(data()), 0);
+        assert_eq!(super::part01(data()), 2178);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(data()), 0);
+        assert_eq!(super::part02(data()), 6486);
     }
 }
 #[cfg(test)]
@@ -261,14 +260,14 @@ pub fn part02(data: String) -> usize {
     let visited : HashSet<Pos> = HashSet::new();
 
     println!("{:?}", graph);
-    println!("{:?}", LongestPath(graph, Pos(0,1), end_pos));
+    println!("{:?}", longest_path(graph, Pos(0,1), end_pos));
     0
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 struct State { pos : Pos, visited : BTreeSet<Pos>}
 
-fn LongestPath(g:Graph, start_vertex : Pos, end_vertex : Pos) -> isize {
+fn longest_path(g:Graph, start_vertex : Pos, end_vertex : Pos) -> isize {
     // let mut max_distance : MM<State, isize> = MM::from([(State{pos : start_vertex, visited : BTreeSet::new()},0)]);
     let mut stack : Vec<(State,isize)> = vec![(State{pos : start_vertex, visited : BTreeSet::new()},0)];
     let mut ms = 0;

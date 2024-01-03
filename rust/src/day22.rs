@@ -1,5 +1,8 @@
 use itertools::Itertools;
-use std::{cmp::{max, min}, collections::HashSet};
+use std::{
+    cmp::{max, min},
+    collections::HashSet,
+};
 
 use crate::util;
 use std::collections::HashMap as MM;
@@ -55,20 +58,20 @@ mod test_slab {
         id: 0,
         p1: (1, 1, 20),
         p2: (1, 1, 21),
-        has_moved : false,
+        has_moved: false,
     };
 
     #[test]
     fn fall() {
         let mut slab = SLABz.clone();
-        slab.fall(&Space::from([((1, 1, 1),SLABz)]));
+        slab.fall(&Space::from([((1, 1, 1), SLABz)]));
         assert_eq!(
             slab,
-             Brick {
+            Brick {
                 id: 0,
                 p1: (1, 1, 2),
                 p2: (1, 1, 3),
-                has_moved : true,
+                has_moved: true,
             }
         );
     }
@@ -78,7 +81,6 @@ mod test_slab {
     }
 }
 
-
 type Space = MM<(i32, i32, i32), Brick>;
 
 #[derive(Debug, Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone)]
@@ -86,7 +88,7 @@ struct Brick {
     id: usize,
     p1: (i32, i32, i32),
     p2: (i32, i32, i32),
-    has_moved : bool,
+    has_moved: bool,
 }
 
 //0,2,3~2,2,3
@@ -100,7 +102,12 @@ fn parse_brick(p: (usize, &str)) -> Brick {
     let p1 = parse_into_triple(_from);
     let p2 = parse_into_triple(_to);
     assert!(p1.2 <= p2.2); // check first point is the lowest
-    Brick { id: p.0, p1, p2, has_moved:false }
+    Brick {
+        id: p.0,
+        p1,
+        p2,
+        has_moved: false,
+    }
 }
 
 impl Brick {
@@ -109,7 +116,7 @@ impl Brick {
             id: self.id,
             p1: (self.p1.0, self.p1.1, self.p1.2 - 1),
             p2: (self.p2.0, self.p2.1, self.p2.2 - 1),
-            has_moved : true,
+            has_moved: true,
         }
     }
     pub fn areabelow(&self) -> Vec<(i32, i32, i32)> {
@@ -143,7 +150,7 @@ impl Brick {
         (x1, y1, z1): (i32, i32, i32),
         (x2, y2, z2): (i32, i32, i32),
     ) -> Vec<(i32, i32, i32)> {
-        let mut v = vec![];
+        let mut v = Vec::with_capacity(6);
         for z in min(z1, z2)..(max(z1, z2) + 1) {
             for x in min(x1, x2)..(max(x1, x2) + 1) {
                 for y in min(y1, y2)..(max(y1, y2) + 1) {
@@ -159,20 +166,33 @@ fn is_clear(s: &Space, v: &Vec<(i32, i32, i32)>) -> bool {
         .all(|(x, y, z)| *z > 0 && !s.contains_key(&(*x, *y, *z)))
 }
 
-fn place_brick<'a>(s : & mut Space, b : &'a Brick ) {
+fn place_brick<'a>(s: &mut Space, b: &'a Brick) {
     for p in b.coordinates() {
         s.insert(p, *b);
     }
 }
 
-fn fall_all<'a>(s : &'a  mut Space, bricks : &  mut  Vec<Brick>) -> &'a  Space {
-    for b in bricks  {
+fn fall_all<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>) -> &'a Space {
+    for b in bricks {
+        b.has_moved = false;
         b.fall(s);
         place_brick(s, b);
     }
     s
 }
-fn touches<'a>(s : &'a Space, cells : &Vec<(i32, i32, i32)>) -> HashSet< Brick> {
+
+fn fall_all_and_skip<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>, ix : usize) -> &'a Space {
+    for (i, b) in bricks.into_iter().enumerate() {
+        if i != ix {
+        b.has_moved = false;
+        b.fall(s);
+        place_brick(s, b);
+        }
+    }
+    s
+}
+
+fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
     let mut v = HashSet::new();
     for p in cells {
         if let Some(id) = s.get(&p) {
@@ -181,23 +201,22 @@ fn touches<'a>(s : &'a Space, cells : &Vec<(i32, i32, i32)>) -> HashSet< Brick> 
     }
     v
 }
-
-fn num_single_supports_above(s : & Space, b : & Brick) -> usize {
-   touches(s, &b.areaabove()).iter().filter(|bid| bid.supporters(&s).len()==1).collect::<Vec<_>>().len()
+fn touches2<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> Vec<&'a Brick> {
+    cells.iter().map(|p| s.get(&p)).flatten().collect_vec()
 }
-fn above_that_would_fall<'a>(s : & Space, b : &'a Brick) -> Vec<usize> {
-    let t = touches(s, &b.areaabove());
-    println!("{} {:?}",b.id, t);
-    println!("{} {:?}", b.id, b.supporters(&s).len());
-    touches(s, &b.areaabove()).iter().filter(|bid| bid.supporters(&s).len()==1).map(|b|b.id).collect::<Vec<_>>()
- }
- 
+
+
+fn num_single_supports_above(s: &Space, b: &Brick) -> usize {
+    touches(s, &b.areaabove())
+        .iter()
+        .filter(|bid| bid.supporters(&s).len() == 1).count()
+}
 
 pub fn part01(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
     let mut s = Space::new();
-    let s = fall_all(&mut s , &mut bricks);
+    let s = fall_all(&mut s, &mut bricks);
     let mut disintegrate = HashSet::new();
     for b in bricks {
         if num_single_supports_above(s, &b) == 0 {
@@ -206,23 +225,23 @@ pub fn part01(data: String) -> usize {
     }
     disintegrate.len()
 }
-
+// 102770
 pub fn part02(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
     let mut s = Space::new();
-    let s = fall_all(&mut s , &mut bricks);
-    let mut result = vec![];
-    for (ix, test_b) in bricks.iter().enumerate() {
-        let mut my_bricks = bricks.clone();
-        for mut brick in &mut my_bricks {
-            brick.has_moved = false;
+    let s = fall_all(&mut s, &mut bricks);
+    let mut result = 0;
+    for ix in 0..bricks.len() {
+        if num_single_supports_above(s, &bricks[ix]) == 0 {
+            continue;
         }
+        let mut my_bricks = bricks.clone();
         my_bricks.remove(ix);
         let mut s = Space::new();
-        fall_all(&mut s , &mut my_bricks);
-        result.push(my_bricks.iter().filter(|b| b.has_moved).count());
+        fall_all(&mut s, &mut my_bricks);
+        result += my_bricks.iter().filter(|b| b.has_moved).count();
     }
-    println!("{:?}", result);
-    result.iter().sum()
+    //println!("{:?}", result);
+    result
 }

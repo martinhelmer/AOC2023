@@ -19,7 +19,11 @@ mod day20;
 mod day21;
 mod day22;
 mod day23;
+mod day24;
+mod day25;
+
 mod util;
+mod linalg;
 
 fn runday(e: &String) {
     match e.as_str() {
@@ -162,6 +166,22 @@ fn runday(e: &String) {
             println!("5 = {}", day23::part01(day23::example()));
             println!("? = {}", day23::part02(day23::example()));
         }
+        "day24" => {
+            println!("? = {}", day24::part01(day24::data()));
+            println!("? = {}", day24::part02(day24::data()));
+        }
+        "ex24" => {
+            println!("5 = {}", day24::part01(day24::example()));
+            println!("? = {}", day24::part02(day24::example()));
+        }
+        "ex25" => {
+            println!("? = {}", day25::part01(day25::example()));
+            println!("? = {}", day25::part02(day25::example()));
+        }
+        "day25" => {
+            println!("? = {}", day25::part01(day25::data()));
+            println!("? = {}", day25::part02(day25::data()));
+        }
         _ => println!("N/A"),
     }
 }
@@ -188,6 +208,9 @@ fn get_module_stuff(
         "day16" => (day16::NAME, day16::data, day16::part01, day16::part02),
         "day17" => (day17::NAME, day17::data, day17::part01, day17::part02),
         "day19" => (day19::NAME, day19::data, day19::part01, day19::part02),
+        "day22" => (day22::NAME, day22::data, day22::part01, day22::part02),
+        "day23" => (day23::NAME, day23::data, day23::part01, day23::part02),
+        "day24" => (day24::NAME, day24::data, day24::part01, day24::part02),
         _ => panic!("main: no match!"),
     }
 }
@@ -223,6 +246,8 @@ fn main() {
         runday2(&String::from("day16"));
         runday2(&String::from("day17"));
         runday2(&String::from("day19"));
+        runday2(&String::from("day22"));
+        runday2(&String::from("day24"));
     } else {
         let day = &args[1];
         let now = Instant::now();
