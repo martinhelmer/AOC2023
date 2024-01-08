@@ -25,6 +25,13 @@ impl ops::Add<Dir> for Pos {
         Pos(self.0 + _rhs.0, self.1 + _rhs.1)
     }
 }
+impl ops::Sub<Dir> for Pos {
+    type Output = Pos;
+
+    fn sub(self, _rhs: Dir) -> Pos {
+        Pos(self.0 - _rhs.0, self.1 - _rhs.1)
+    }
+}
 
 impl Pos {
     pub fn as_a2d_index(&self) -> (usize, usize) {

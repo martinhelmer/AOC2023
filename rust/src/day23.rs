@@ -219,7 +219,7 @@ pub fn part01(data: String) -> usize {
         visited.insert((pos, dir));
     }
     graph.insert(end_pos, vec![]);
-    print!("graph = {:?}, ({})", graph, graph.len());
+    //print!("graph = {:?}, ({})", graph, graph.len());
     part0102(graph)
 }
 
@@ -253,7 +253,8 @@ fn getgraph(a: &Grid) -> Graph {
     graph
 }
 pub fn part02(data: String) -> usize {
-    println!("Part 2...");
+    return  0;
+    //println!("Part 2...");
     let a = util::grid_to_a2d(&data);
     let end_pos = Pos(a.num_rows() as i32 - 1, a.num_columns() as i32 - 2);
     let graph = getgraph(&a);

@@ -132,13 +132,11 @@ fn partnumbers(a: &Array2D<char>) -> Vec<PartNumber> {
     pn
 }
 
-pub fn part01(data: String) -> usize{
+pub fn part02(data: String) -> usize{
     let l: Vec<Vec<char>> = data.lines().map(|q| q.chars().collect()).collect();
     let array = Array2D::from_rows(&l).unwrap();
     let pn = partnumbers(&array);
     let s: usize = pn.iter().map(|p| p.number).sum();
-
-    println!("part1 {:?} ({}", s, pn.len());
     let mut symhash = BTreeMap::new();
     for part in pn {
         for symbol in part.symbols {
@@ -154,9 +152,12 @@ pub fn part01(data: String) -> usize{
         .values()
         .filter(|v| v.len() == 2)
         .map(|v| v.iter().product::<usize>());
-    let gearsum: usize = gear_ratios.sum();
-    println!("{}", gearsum);
-    gearsum
+    gear_ratios.sum()
 }
 
-pub fn part02(_data: String) -> usize { 0 }
+pub fn part01(data: String) -> usize { 
+    let l: Vec<Vec<char>> = data.lines().map(|q| q.chars().collect()).collect();
+    let array = Array2D::from_rows(&l).unwrap();
+    let pn = partnumbers(&array);
+    pn.iter().map(|p| p.number).sum()
+ }

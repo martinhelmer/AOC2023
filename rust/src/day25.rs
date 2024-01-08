@@ -2,12 +2,12 @@ use itertools::Itertools;
 
 use crate::util::{self, djikstra, shortestpath_from_dj};
 use std::collections::{HashMap, HashSet};
-use std::thread;
-use std::time::Duration;
+// use std::thread;
+// use std::time::Duration;
 
-pub const NAME: &str = "Day 25: Snowverload";
+pub const NAME: &str = "Day 25: Snowoverload";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "jqt: rhn xhk nvd
 rsh: frs pzl lsr
@@ -36,23 +36,16 @@ mod test_result {
     fn part01() {
         assert_eq!(super::part01(data()), 0);
     }
-    #[test]
-    fn part02() {
-        assert_eq!(super::part02(data()), 0);
-    }
 }
 #[cfg(test)]
 mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 0);
-    }
-    #[test]
-    fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part01(_example()), 0);
     }
 }
+
 type Graph<'a> = HashMap<&'a str, Vec<(&'a str, usize)>>;
 
 fn get_graph<'a>(data: &'a String) -> Graph<'a> {
@@ -97,12 +90,12 @@ fn subgraph_size(g : & Graph, start_node : &str , exclude_nodes : HashSet<&str>)
 pub fn part01(data: String) -> usize {
     let g = get_graph(&data);
     let gl = g.len();
-    println!("graph size = {}", subgraph_size(&g, g.keys().next().unwrap(), HashSet::new()));
+    //println!("graph size = {}", subgraph_size(&g, g.keys().next().unwrap(), HashSet::new()));
     let mut sp_count = HashMap::with_capacity(g.len());
     let mut n = 0;
     for k in g.keys() {
         n+=1 ;
-        let (d, p) = djikstra(&g, k);
+        let (_d, p) = djikstra(&g, k);
         for k2 in g.keys() {
             if k == k2  { continue;}
             let visited = shortestpath_from_dj(&p, k, k2).unwrap();
@@ -118,7 +111,7 @@ pub fn part01(data: String) -> usize {
         if n < 5 {continue;}
         let sub =  subgraph_size(&g, g.keys().next().unwrap(), favs);
         if sub < gl {
-            println!("n = {}",n);
+            // println!("n = {}",n);
             return sub * (gl-sub)
         }
     }
@@ -126,6 +119,6 @@ pub fn part01(data: String) -> usize {
 }
 // [("qdp", 162083), ("jxx", 161767), ("qqq", 152532), ("mlp", 151151), ("zbr", 143809), ("vsx", 143133), ("bht", 54021)]
 
-pub fn part02(data: String) -> usize {
+pub fn part02(_data: String) -> usize {
     0
 }

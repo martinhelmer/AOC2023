@@ -2,7 +2,8 @@ use crate::util;
 use crate::util::{ Dir, Pos, EAST, NORTH, SOUTH, WEST};
 use array2d::Array2D;
 use std::cmp::{max, min};
-use std::collections::{HashMap, HashSet};
+//use std::collections::HashMap;
+use std::collections::HashSet;
 use queues::{IsQueue, Queue};
 
 pub const NAME: &str = "Day 18: Lavaduct Lagoon";
@@ -55,13 +56,13 @@ mod test_example {
     }
 }
 
-struct instr {
+struct Instr {
     dir: Dir,
     length: usize,
     color: String,
 }
 
-fn parse_instr(s: &str) -> instr {
+fn parse_instr(s: &str) -> Instr {
     let items: Vec<_> = s.split_whitespace().collect();
     let dir = match items[0] {
         "R" => EAST,
@@ -72,10 +73,10 @@ fn parse_instr(s: &str) -> instr {
     };
     let length: usize = items[1].parse().unwrap();
     let color = items[2].trim_matches(|c| c == '(' || c == ')').to_string();
-    instr { dir, length, color }
+    Instr { dir, length, color }
 }
 pub fn part01(data: String) -> usize {
-    let dig_plan: Vec<instr> = data.lines().map(parse_instr).collect();
+    let dig_plan: Vec<Instr> = data.lines().map(parse_instr).collect();
     let mut p = Pos(0, 0);
     let mut land: HashSet<Pos> = HashSet::from([p]);
     let mut min_col = 0;
@@ -83,7 +84,7 @@ pub fn part01(data: String) -> usize {
     let mut max_col = 0;
     let mut max_row = 0;
     for instruction in dig_plan {
-        for step in 0..instruction.length {
+        for _ in 0..instruction.length {
             p = p + instruction.dir;
             min_col = min(min_col, p.1);
             min_row = min(min_row, p.0);
@@ -92,15 +93,15 @@ pub fn part01(data: String) -> usize {
             land.insert(p);
         }
     }
-    println!(
-        "End pos {:?}, ({}), ({},{})-({},{})",
-        p,
-        land.len(),
-        min_row,
-        min_col,
-        max_row,
-        max_col
-    );
+    // println!(
+    //     "End pos {:?}, ({}), ({},{})-({},{})",
+    //     p,
+    //     land.len(),
+    //     min_row,
+    //     min_col,
+    //     max_row,
+    //     max_col
+    // );
 
     let fill_pos = Pos(1,1);
     let mut q : Queue<Pos> = Queue::new();
@@ -125,12 +126,12 @@ pub fn part01(data: String) -> usize {
         let p = *k+offset;
         a.set(p.0 as usize, p.1 as usize, if *k == Pos(0, 0) {'O'} else {' '}).unwrap();
     }
-    println!("{}",util::a2dc_to_grid(&a));
+    //println!("{}",util::a2dc_to_grid(&a));
     land.len()
 }
 
-pub fn part02(data: String) -> usize {
-    println!("Part 2");
+pub fn part02(_data: String) -> usize {
+    //println!("Part 2");
     0
 }
 

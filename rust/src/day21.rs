@@ -1,7 +1,6 @@
 
 use crate::util::{self, ok_pos, Dir, Pos, EAST, NORTH, SOUTH, WEST};
 use array2d::Array2D;
-use itertools::Itertools;
 use std::collections::HashSet;
 
 pub const NAME: &str = "Day 21: Step Counter";
@@ -68,21 +67,19 @@ pub fn part01(data: String) -> usize {
     assert_eq!(a[spos.as_a2d_index()], 'S');
     let mut steps = HashSet::from([spos]);
 
-    for i in 0..140 {
+    for i in 0..64 {
         let mut newsteps = HashSet::new();
         for from_pos in &steps {
             newsteps.extend(next_steps(&a, *from_pos));
         }
         steps = newsteps;
-        println!(" {}  : {}", i , steps.len());
+        //println!(" {}  : {}", i , steps.len());
     }
-    println!("{}", steps.len());
-
-    0
+    steps.len()
 }
 
 pub fn part02(data: String) -> usize {
-    println!("Part 2");
+    // println!("Part 2");
     0
 }
 

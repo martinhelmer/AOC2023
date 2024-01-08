@@ -1,13 +1,13 @@
 use itertools::Itertools;
-use num::{BigInt, BigRational, Rational64};
-use num_traits::FromPrimitive;
+use num::{BigInt, BigRational};
+// use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 
 type MyRat = BigRational;
 
 use crate::linalg;
 use crate::util;
-use std::u32;
+// use std::u32;
 
 pub const NAME: &str = "Day 24: Never Tell Me The Odds";
 

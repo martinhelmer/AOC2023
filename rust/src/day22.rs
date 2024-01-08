@@ -181,16 +181,6 @@ fn fall_all<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>) -> &'a Space {
     s
 }
 
-fn fall_all_and_skip<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>, ix : usize) -> &'a Space {
-    for (i, b) in bricks.into_iter().enumerate() {
-        if i != ix {
-        b.has_moved = false;
-        b.fall(s);
-        place_brick(s, b);
-        }
-    }
-    s
-}
 
 fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
     let mut v = HashSet::new();
@@ -200,9 +190,6 @@ fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
         }
     }
     v
-}
-fn touches2<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> Vec<&'a Brick> {
-    cells.iter().map(|p| s.get(&p)).flatten().collect_vec()
 }
 
 

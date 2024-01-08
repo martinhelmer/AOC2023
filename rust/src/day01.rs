@@ -75,6 +75,11 @@ mod test_result {
 
 
 // other ppls solutions
+mod others {
+    #![allow(unused)]
+
+    use crate::util;
+    
 pub fn part01b() {
     let contents: String = util::get_input("day01.txt");
     println!("{}", parse_input(contents.as_str(), false))
@@ -129,6 +134,7 @@ const LUT: [&str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
+
 pub fn part_one(input: &str) -> u32 {
     input.lines().map(parse_line_1).sum()
 }
@@ -159,4 +165,5 @@ fn compare_slice(slice: &str) -> Option<u32> {
         .find(|(_, pattern)| slice.starts_with(*pattern))
         .map(|(i, _)| i as u32 + 1)
         .or_else(|| slice.chars().next().unwrap().to_digit(10))
+}
 }

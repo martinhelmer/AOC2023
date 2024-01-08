@@ -136,6 +136,5 @@ pub fn part02(data: String) -> usize {
     let r3s : usize = r3.max().unwrap();
     let r4s : usize = r4.max().unwrap();
     let l = vec![r1s, r2s, r3s, r4s];
-    println!("{}", l.iter().max().unwrap());
-    0
+    *l.iter().max().unwrap()
 }

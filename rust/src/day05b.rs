@@ -3,8 +3,10 @@
 use crate::util;
 use itertools::{any, Itertools};
 use std::cmp::Ordering;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
-pub const NAME: &str = "Day 5: If You Give A Seed A Fert.";
+pub const NAME: &str = "Day 5: (MT) If You Give A Seed A Fert.";
 
 pub fn data() -> String {
     util::get_input("day05.txt")
@@ -48,7 +50,7 @@ humidity-to-location map:
     )
 }
 
-#[derive(Debug, Eq, PartialEq, PartialOrd)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Clone, Copy)]
 struct SubMap {
     from: (usize, usize), // exclusive range
     to: (usize, usize),   //
@@ -72,7 +74,7 @@ fn apply_submap_on_seedrange(m: SubMap, sr: (usize, usize)) -> Vec<(usize, usize
     vec![sr]
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Map {
     submaps: Vec<SubMap>,
 }
@@ -177,18 +179,38 @@ fn is_seed(s: usize, seeds: &Vec<(usize, usize)>) -> bool {
     false
 }
 
-//137 516 820
-pub fn part02(data: String) -> usize {
-    let lines: Vec<&str> = data.lines().collect();
-    let seeds: Vec<(usize, usize)> = parse_seed_ranges(&lines[0]);
-    println!("{:?}", seeds);
-    let maps: Vec<Map> = parse_maps(&lines[1..]);
-    let rmap: Vec<Map> = maps.into_iter().rev().collect();
-    for (i, s) in (0..).map(|s| doseed_rev(&rmap, s)).enumerate() {
+fn do_some(
+    rmap: & Vec<Map>,
+    seeds: & Vec<(usize, usize)>,
+    status: Arc<Mutex<Option<usize>>>,
+    step: usize,
+    offset: usize,
+) -> usize {
+    // println!("({}) starting thread", offset);
+    for (j, s) in (0..)
+        .map(|s| doseed_rev(&rmap, s * step + offset))
+        .enumerate()
+    {
+        let i = j * step + offset;
         match s {
             Ok(s) => {
                 if is_seed(s, &seeds) {
-                    // println!("{}", i);
+                    // println!("({}) Thread found {}", offset, i);
+                    let mut st = status.lock().unwrap();
+                    match *st {
+                        None => {
+                            // println!("({}) I'm first ({})", offset, i);
+                            *st = Some(i);
+                        }
+                        Some(v) => {
+                            if i < v {
+                                *st = Some(i);
+                                // println!("({}) My value is better. {} < {} ", offset, i, v);
+                            } else {
+                                // println!("({}) But someone else found a better value ({})", offset, v);
+                            }
+                        }
+                    }
                     return i;
                 }
             }
@@ -198,6 +220,37 @@ pub fn part02(data: String) -> usize {
         }
     }
     0
+}
+
+//137 516 820
+pub fn part02(data: String) -> usize {
+    let lines: Vec<&str> = data.lines().collect();
+    let seeds: Vec<(usize, usize)> = parse_seed_ranges(&lines[0]);
+    //println!("{:?}", seeds);
+    let maps: Vec<Map> = parse_maps(&lines[1..]);
+    let rmap: Vec<Map> = maps.into_iter().rev().collect();
+
+    let status: Arc<Mutex<Option<usize>>> = Arc::new(Mutex::new(None));
+    let mut handles = vec![];
+
+    let num_threads = 12;
+    for i in 0..num_threads {
+        let status = Arc::clone(&status);
+        let rmap = rmap.clone();
+        let seeds = seeds.clone();
+        let handle = thread::spawn(move || {
+            do_some(&rmap, &seeds, status, num_threads, i);
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    let r = *status.lock().unwrap();
+    //println!("Result: {:?}",r );
+    r.unwrap()
 }
 
 #[cfg(test)]
