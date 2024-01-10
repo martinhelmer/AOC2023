@@ -6,7 +6,7 @@ use priority_queue::PriorityQueue;
 
 pub const NAME: &str = "Day 15: Lens Library";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7",
     )
@@ -49,11 +49,11 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 1320);
+        assert_eq!(super::part01(_example()), 1320);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 145);
+        assert_eq!(super::part02(_example()), 145);
     }
 }
 

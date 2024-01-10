@@ -74,6 +74,7 @@ fn get_module_stuff(
         "day16" => (day16::NAME, day16::data, day16::part01, day16::part02),
         "day17" => (day17::NAME, day17::data, day17::part01, day17::part02),
         "day18" => (day18::NAME, day18::data, day18::part01, day18::part02),
+        "ex18" => (day18::NAME, day18::example, day18::part01, day18::part02),
         "day19" => (day19::NAME, day19::data, day19::part01, day19::part02),
         "day20" => (day20::NAME, day20::data, day20::part01, day20::part02),
         "day21" => (day21::NAME, day21::data, day21::part01, day21::part02),
@@ -88,19 +89,28 @@ fn get_module_stuff(
 fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
     let h = HashMap::from([
         ("day01", (Some(55386), Some(54824))),
+        ("day02", (Some(2512), Some((67335)))),
+        ("day03", (None, None)),
+        ("day04", (None, None)),
         ("day05b", (Some(389056265), Some(137516820))),
         ("day06", (Some(3317888), Some(24655068))),
+        ("day07", (Some(251106089), Some(249620106))),
         ("day08", (Some(23147), Some(22289513667691))),
+        ("day09", (Some(1898776583), Some(1100))),
+        ("day10", (Some(7005), Some(417))),
+        ("day11", (Some(10292708), Some(790194712336))),
         ("day14", (Some(109833), Some(99875))),
         ("day15", (Some(504036), Some(295719))),
         ("day16", (Some(7482), Some(7896))),
         ("day17", (Some(674), Some(773))),
-        ("day18", (Some(49578), None)),
+        ("day18", (Some(49578), Some(52885384955882))),
         ("day19", (Some(425811), Some(131796824371749))),
         ("day20", (Some(812721756), Some(233338595643977))),
         ("day21", (Some(3768), None)),
         ("day22", (Some(509), Some(102770))),
         ("day23", (Some(2178), Some(6486))),
+        ("day24", (Some(20336), Some(677656046662770))),
+        ("day25", (Some(543256), None)),
     ]);
     let l = h.get(s);
     match l {

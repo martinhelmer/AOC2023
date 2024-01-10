@@ -170,11 +170,18 @@ fn part0102(data: String, nnf : fn(&Array2D<u32>,Node) -> Vec<(Node, u32)>) -> u
     this_node = *tnp;
     this_heat = *thp;
     loop {
+        // if !visited.contains_key(&this_node) {
         for (newnode, heat) in nnf(&a, this_node).iter() {
             if visited.contains_key(&newnode) {
                 continue;
             }
             let new_heat = this_heat - *heat as isize;
+            // if let Some(p) = pq.push(*newnode, new_heat) {
+            //     if p > new_heat {
+            //         pq.push(*newnode, p);
+            //     }
+            // }
+
             match pq.get_priority(newnode) {
                 None => {
                     pq.push(*newnode, new_heat);
@@ -185,8 +192,9 @@ fn part0102(data: String, nnf : fn(&Array2D<u32>,Node) -> Vec<(Node, u32)>) -> u
                     }
                 }
             }
-        }
+        // }
         visited.insert(this_node, this_heat as isize);
+    }
         (this_node, this_heat) = pq.pop().unwrap();
         if this_node.pos == Pos((a.num_rows() - 1) as i32, (a.num_columns() - 1) as i32) {
             return -this_heat as usize

@@ -9,7 +9,7 @@ pub fn data() -> String {
     contents
 }
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "467..114..
 ...*......
@@ -136,7 +136,6 @@ pub fn part02(data: String) -> usize{
     let l: Vec<Vec<char>> = data.lines().map(|q| q.chars().collect()).collect();
     let array = Array2D::from_rows(&l).unwrap();
     let pn = partnumbers(&array);
-    let s: usize = pn.iter().map(|p| p.number).sum();
     let mut symhash = BTreeMap::new();
     for part in pn {
         for symbol in part.symbols {

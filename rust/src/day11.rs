@@ -3,7 +3,7 @@ use std::iter::zip;
 
 pub const NAME :&str = "Day 11: Cosmic Expansion";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "...#......
 .......#..

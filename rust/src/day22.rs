@@ -183,6 +183,7 @@ fn fall_all<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>) -> &'a Space {
 
 
 fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
+    //let v = HashSet::from_iter(cells.iter().map(|p|s.get(p)).flatten().map(|p|*p));
     let mut v = HashSet::new();
     for p in cells {
         if let Some(id) = s.get(&p) {
@@ -229,6 +230,5 @@ pub fn part02(data: String) -> usize {
         fall_all(&mut s, &mut my_bricks);
         result += my_bricks.iter().filter(|b| b.has_moved).count();
     }
-    //println!("{:?}", result);
     result
 }

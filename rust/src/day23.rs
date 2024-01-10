@@ -6,7 +6,7 @@ use crate::util::{self, rl, rr, Dir, Grid, Pos, EAST, NORTH, SOUTH, WEST};
 
 pub const NAME: &str = "Day 23: A Long Walk";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "#.#####################
 #.......#########...###
@@ -55,11 +55,11 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 0);
+        assert_eq!(super::part01(_example()), 0);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part02(_example()), 0);
     }
 }
 // find the next node in this direction.

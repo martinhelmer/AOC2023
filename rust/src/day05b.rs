@@ -233,7 +233,7 @@ pub fn part02(data: String) -> usize {
     let status: Arc<Mutex<Option<usize>>> = Arc::new(Mutex::new(None));
     let mut handles = vec![];
 
-    let num_threads = 12;
+    let num_threads = 10;
     for i in 0..num_threads {
         let status = Arc::clone(&status);
         let rmap = rmap.clone();

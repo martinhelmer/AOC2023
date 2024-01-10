@@ -37,7 +37,27 @@ impl Pos {
     pub fn as_a2d_index(&self) -> (usize, usize) {
         (self.0 as usize, self.1 as usize)
     }
+    pub fn from_a2d_index(ix : (usize, usize)) -> Pos {
+        Pos(ix.0 as i32, ix.1 as i32)
+    }
 }
+
+impl ops::Neg for Dir {
+    type Output = Dir;
+
+    fn neg(self) -> Dir {
+        Dir(-self.0, -self.1)
+    }
+}
+
+impl ops::Mul<i32> for Dir {
+    type Output = Dir;
+
+    fn mul(self, rhs : i32) -> Dir {
+        Dir(self.0 * rhs, self.1 * rhs)
+    }
+}
+
 
 pub const EAST: Dir = Dir(0, 1);
 pub const WEST: Dir = Dir(0, -1);

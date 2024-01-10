@@ -1,3 +1,4 @@
+
 use itertools::Itertools;
 use num::{BigInt, BigRational};
 // use num_traits::FromPrimitive;
@@ -11,15 +12,6 @@ use crate::util;
 
 pub const NAME: &str = "Day 24: Never Tell Me The Odds";
 
-pub fn example() -> String {
-    String::from(
-        "19, 13, 30 @ -2,  1, -2
-18, 19, 22 @ -1, -1, -2
-20, 25, 34 @ -2, -2, -4
-12, 31, 28 @ -1, -2, -1
-20, 19, 15 @  1, -5, -3",
-    )
-}
 
 pub fn data() -> String {
     util::get_input("day24.txt")
@@ -30,25 +22,25 @@ mod test_result {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(data()), 0);
+        assert_eq!(super::part01(data()), 20336);
     }
     #[test]
     fn part02() {
         assert_eq!(super::part02(data()), 0);
     }
 }
-#[cfg(test)]
-mod test_example {
-    use super::*;
-    #[test]
-    fn part01() {
-        assert_eq!(super::part01(example()), 0);
-    }
-    #[test]
-    fn part02() {
-        assert_eq!(super::part02(example()), 0);
-    }
-}
+// #[cfg(test)]
+// mod test_example {
+//     use super::*;
+//     #[test]
+//     fn part01() {
+//         assert_eq!(super::part01(_example()), 0);
+//     }
+//     #[test]
+//     fn part02() {
+//         assert_eq!(super::part02(_example()), 0);
+//     }
+// }
 
 #[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 struct Hailstone2D {
@@ -87,7 +79,7 @@ fn future_cross_point2d((stone0, stone1): (Hailstone2D, Hailstone2D)) -> Option<
     }
 }
 fn my_tuple_combinations<T: Copy>(v: Vec<T>) -> Vec<(T, T)> {
-    let mut u = Vec::with_capacity(v.len()*(v.len()+1)/2);
+    let mut u = Vec::with_capacity(v.len() * (v.len() + 1) / 2);
     for i in 0..v.len() {
         for j in (i + 1)..v.len() {
             u.push((v[i], v[j]));
