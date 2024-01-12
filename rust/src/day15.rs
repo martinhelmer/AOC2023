@@ -23,7 +23,7 @@ fn hash(s : &str ) -> usize {
 mod test_hash {
     
     #[test]
-    fn HASH() {
+    fn hash() {
         assert_eq!(super::hash("HASH"), 52);
         assert_eq!(super::hash("rn=1"), 30);
         assert_eq!(super::hash("cm-"), 253); 

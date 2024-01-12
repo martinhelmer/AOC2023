@@ -2,6 +2,11 @@ use itertools::Itertools;
 use std::{
     cmp::{max, min},
     collections::HashSet,
+    sync::{
+        mpsc::{self, Sender},
+        Arc, Mutex,
+    },
+    thread::{self, JoinHandle},
 };
 
 use crate::util;
@@ -9,7 +14,7 @@ use std::collections::HashMap as MM;
 
 pub const NAME: &str = "Day 22: Sand Slabs";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "1,0,1~1,2,1
 0,0,2~2,0,2
@@ -43,18 +48,18 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 5);
+        assert_eq!(super::part01(_example()), 5);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part02(_example()), 0);
     }
 }
 
 #[cfg(test)]
 mod test_slab {
     use super::*;
-    const SLABz: Brick = Brick {
+    const SLABZ: Brick = Brick {
         id: 0,
         p1: (1, 1, 20),
         p2: (1, 1, 21),
@@ -63,8 +68,8 @@ mod test_slab {
 
     #[test]
     fn fall() {
-        let mut slab = SLABz.clone();
-        slab.fall(&Space::from([((1, 1, 1), SLABz)]));
+        let mut slab = SLABZ.clone();
+        slab.fall(&Space::from([((1, 1, 1), SLABZ)]));
         assert_eq!(
             slab,
             Brick {
@@ -77,7 +82,7 @@ mod test_slab {
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part02(_example()), 0);
     }
 }
 
@@ -151,7 +156,7 @@ impl Brick {
         (x2, y2, z2): (i32, i32, i32),
     ) -> Vec<(i32, i32, i32)> {
         let mut v = Vec::with_capacity(6);
-        for z in min(z1, z2)..(max(z1, z2) + 1) {
+        for z in z1..(z2 + 1) { // assuming z1 <= z2
             for x in min(x1, x2)..(max(x1, x2) + 1) {
                 for y in min(y1, y2)..(max(y1, y2) + 1) {
                     v.push((x, y, z))
@@ -172,15 +177,13 @@ fn place_brick<'a>(s: &mut Space, b: &'a Brick) {
     }
 }
 
-fn fall_all<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>) -> &'a Space {
+fn fall_all<'a>(s: &'a mut Space, bricks: &mut Vec<Brick>) {
     for b in bricks {
         b.has_moved = false;
         b.fall(s);
         place_brick(s, b);
     }
-    s
 }
-
 
 fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
     //let v = HashSet::from_iter(cells.iter().map(|p|s.get(p)).flatten().map(|p|*p));
@@ -193,35 +196,35 @@ fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
     v
 }
 
-
 fn num_single_supports_above(s: &Space, b: &Brick) -> usize {
     touches(s, &b.areaabove())
         .iter()
-        .filter(|bid| bid.supporters(&s).len() == 1).count()
+        .filter(|bid| bid.supporters(&s).len() == 1)
+        .count()
 }
 
 pub fn part01(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
-    let mut s = Space::new();
-    let s = fall_all(&mut s, &mut bricks);
-    let mut disintegrate = HashSet::new();
+    let mut s = Space::with_capacity(1000);
+    fall_all(&mut s, &mut bricks);
+    let mut disintegrate = HashSet::with_capacity(1000);
     for b in bricks {
-        if num_single_supports_above(s, &b) == 0 {
+        if num_single_supports_above(&s, &b) == 0 {
             disintegrate.insert(b.id);
         }
     }
     disintegrate.len()
 }
 // 102770
-pub fn part02(data: String) -> usize {
+pub fn _part02(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
-    let mut s = Space::new();
-    let s = fall_all(&mut s, &mut bricks);
+    let mut s = Space::with_capacity(10000);
+    fall_all(&mut s, &mut bricks);
     let mut result = 0;
     for ix in 0..bricks.len() {
-        if num_single_supports_above(s, &bricks[ix]) == 0 {
+        if num_single_supports_above(&s, &bricks[ix]) == 0 {
             continue;
         }
         let mut my_bricks = bricks.clone();
@@ -231,4 +234,43 @@ pub fn part02(data: String) -> usize {
         result += my_bricks.iter().filter(|b| b.has_moved).count();
     }
     result
+}
+
+pub fn part02(data: String) -> usize {
+    let bricksit = data.lines().enumerate().map(parse_brick);
+    let  mut bricks:Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
+    let mut s = Space::with_capacity(4096);
+    fall_all(&mut s, &mut bricks);
+
+    let todo: Vec<usize> = (0..bricks.len())
+        .filter(|ix| !(num_single_supports_above(&s, &bricks[*ix]) == 0))
+        .collect();
+
+    let (tx, rx) = mpsc::channel();
+    let mut_todo: Arc<Mutex<Vec<usize>>> = Arc::new(Mutex::new(todo));
+    let mut handles: Vec<JoinHandle<()>> = vec![];
+    let shared_bricks = Arc::new(bricks);
+    for _ in 0..10 {
+        let my_mut_todo = mut_todo.clone();
+        let my_tx = tx.clone();
+        let sb = shared_bricks.clone();
+        handles.push(thread::spawn(move || do_from_todo(my_mut_todo, my_tx, sb)));
+    }
+    drop(tx);
+    rx.iter().sum()
+}
+
+fn do_from_todo(todo: Arc<Mutex<Vec<usize>>>, tx: Sender<usize>, bricks: Arc<Vec<Brick>>) {
+    while let Some(ix) = {
+        let mut unlocked_todo = todo.lock().unwrap();
+        unlocked_todo.pop()
+    } {
+        //println!("doing brick {}", ix);
+        let mut my_bricks = (*bricks).clone();
+        my_bricks.remove(ix);
+        let mut s = Space::with_capacity(4096);
+        fall_all(&mut s, &mut my_bricks);
+        tx.send(my_bricks.iter().filter(|b| b.has_moved).count())
+            .unwrap()
+    }
 }

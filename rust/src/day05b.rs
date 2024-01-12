@@ -239,13 +239,13 @@ pub fn part02(data: String) -> usize {
         let rmap = rmap.clone();
         let seeds = seeds.clone();
         let handle = thread::spawn(move || {
-            do_some(&rmap, &seeds, status, num_threads, i);
+            do_some(&rmap, &seeds, status, num_threads, i)
         });
         handles.push(handle);
     }
 
     for handle in handles {
-        handle.join().unwrap();
+       handle.join().unwrap();
     }
 
     let r = *status.lock().unwrap();

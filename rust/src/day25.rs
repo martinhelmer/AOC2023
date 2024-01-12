@@ -103,7 +103,7 @@ pub fn part01(data: String) -> usize {
                 *sp_count.entry(*v).or_insert(0) += 1;
             }
         }
-        let mut favs : HashSet<&str>= HashSet::new();
+        let mut favs : HashSet<&str>= HashSet::with_capacity(g.len());
         for (i,f) in sp_count.iter().sorted_by(|a, b| Ord::cmp(&b.1, &a.1)).enumerate() {
             favs.insert(f.0);
             if i >= 5 { break}

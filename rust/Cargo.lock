@@ -20,6 +20,7 @@ dependencies = [
  "fraction",
  "itertools",
  "num",
+ "num-bigint",
  "num-traits",
  "priority-queue",
  "queues",

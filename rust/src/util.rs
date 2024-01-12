@@ -1,5 +1,6 @@
 #![allow(unused)]
 use array2d::Array2D;
+use num_traits::abs;
 use priority_queue::PriorityQueue;
 use queues::{IsQueue, Queue};
 use std::hash::Hash;
@@ -39,6 +40,12 @@ impl Pos {
     }
     pub fn from_a2d_index(ix : (usize, usize)) -> Pos {
         Pos(ix.0 as i32, ix.1 as i32)
+    }
+    pub fn mdist(&self, p : &Pos) -> i32 {
+        (if p.0 > self.0 {p.0 - self.0} else {self.0 - p.0})
+        +
+        if p.1 > self.1 {p.1 - self.1} else {self.1 - p.1}
+
     }
 }
 
@@ -238,3 +245,88 @@ where
     }
    None
 }
+
+// MyHash
+pub struct MyHash<'a, T, U> {
+    pub v: Vec<Option<U>>,
+    ixf: &'a dyn Fn(&T) -> usize,
+}
+
+// BoolHash   
+pub type BoolHash<'a, T> = MyHash<'a, T, bool>;
+// pub struct BoolHash<'a, T> {
+//     pub v: Vec<bool>,
+//     ixf: &'a dyn Fn(&T) -> usize,
+// }
+
+impl<'a, T, U : Copy > MyHash<'a, T, U> {
+    pub fn new(ixf: &'a dyn Fn(&T) -> usize, maxelem: &T) -> MyHash<'a, T, U> {
+        MyHash {
+            v: vec![None; ixf(maxelem)+1],
+            ixf,
+        }
+    }
+    pub fn set(&mut self, n: &T, v :U) {
+        let ix = ((*self).ixf)(n);
+        self.v[ix] = Some(v);
+    }
+    pub fn get(&mut self, n: &T) -> Option<U> {
+        let ix = ((*self).ixf)(n);
+        self.v[ix]
+    }
+}
+impl<'a, T> BoolHash<'a, T> {
+    pub fn insert(&mut self, n: &T) { self.set(n, true); }
+    pub fn contains(&mut self, n: &T) -> bool { match self.get(n) { Some(_) => true, None => false} }
+
+}
+
+
+#[derive(Debug, Eq, Hash, PartialEq, Copy, Clone, Ord, PartialOrd)]
+pub struct Node2 {
+    pub pos: Pos,
+    pub dir: Dir,
+}
+
+impl<'a, U>  MyHash<'_, Node2, U> {
+    pub fn ifx(nc : usize, n : &Node2) -> usize {
+        ((*n).pos.0 as usize * nc
+            + n.pos.1 as usize) * 4
+            + match n.dir {
+                NORTH => 0,
+                EAST => 1,
+                SOUTH => 2,
+                WEST => 3,
+                _ => panic!(""),
+            }
+    }
+    pub fn maxelem(nc : usize) -> Node2 {
+        Node2 {  pos: Pos(nc as i32 -1, nc as i32 -1), dir : WEST}
+    }
+}
+
+impl BoolHash<'_, (Pos, Dir)> {
+
+    pub fn ifx(nc : usize, n : &(Pos,Dir)) -> usize {
+        ((*n).0.0 as usize * nc
+            + n.0.1 as usize) * 4
+            + match n.1 {
+                NORTH => 0,
+                EAST => 1,
+                SOUTH => 2,
+                WEST => 3,
+                _ => panic!(""),
+            }
+    }
+    pub fn maxelem(nc : usize) -> (Pos, Dir) {
+        (Pos(nc as i32 -1, nc as i32 -1),  WEST)
+    }
+}
+
+impl BoolHash<'_, Pos> {
+    pub fn ifx(nc : usize, n : &Pos) -> usize {
+        ((*n).0 as usize * nc
+            + n.1 as usize)
+    }
+}
+

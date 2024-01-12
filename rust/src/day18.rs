@@ -1,11 +1,6 @@
 use crate::util;
 use crate::util::{Dir, Pos, EAST, NORTH, SOUTH, WEST};
-use array2d::Array2D;
-use itertools::all;
-use std::cmp::{max, min};
 //use std::collections::HashMap;
-use queues::{IsQueue, Queue};
-use std::collections::HashSet;
 use std::mem::swap;
 
 pub const NAME: &str = "Day 18: Lavaduct Lagoon";
@@ -74,7 +69,6 @@ fn parse_instr(s: &str) -> Instr {
         _ => panic!("panic"),
     };
     let length: usize = items[1].parse().unwrap();
-    let color = items[2].trim_matches(|c| c == '(' || c == ')').to_string();
     Instr { dir, length }
 }
 

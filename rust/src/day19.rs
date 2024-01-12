@@ -5,7 +5,7 @@ use std::slice;
 
 pub const NAME: &str = "Day 19: Aplenty";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "px{a<2006:qkq,m>2090:A,rfg}
 pv{a>1716:R,A}
@@ -60,11 +60,11 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 19114);
+        assert_eq!(super::part01(_example()), 19114);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 167409079868000);
+        assert_eq!(super::part02(_example()), 167409079868000);
     }
 }
 

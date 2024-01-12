@@ -64,7 +64,7 @@ pub fn part01(data: String) -> usize {
 pub fn part02(data: String) -> usize {
     let q = data.lines().map(|r| {
         let row = parse_row2(r);
-        let n = nf3(&mut QQ::new(), &row.pat, &row.nums);
+        let n = nf3(&mut QQ::with_capacity(1024), &row.pat, &row.nums);
         n
     });
     let s = q.sum();

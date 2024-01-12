@@ -1,3 +1,4 @@
+#![warn(dead_code)]
 use std::{collections::{HashMap as MM, HashSet, BTreeSet}, cmp::max};
 use itertools::Itertools;
 use priority_queue::PriorityQueue;
@@ -82,7 +83,7 @@ fn checkdir(a: &Grid, d: Dir, p: Pos) -> Option<Dir> {
     }
 }
 
-fn checkdir2(a: &Grid, d: Dir, p: Pos) -> Option<Dir> {
+fn _checkdir2(a: &Grid, d: Dir, p: Pos) -> Option<Dir> {
     if (p + d).0 < 0 || (p + d).0 > (a.num_rows() as i32 - 1) {
         return None;
     };
@@ -225,16 +226,16 @@ pub fn part01(data: String) -> usize {
 
 
 fn getgraph(a: &Grid) -> Graph {
-    let mut stack: Vec<(Pos)> = vec![Pos(0, 1)];
+    let mut stack: Vec<Pos> = vec![Pos(0, 1)];
     let mut graph: Graph = MM::new();
     let mut visited: HashSet<Pos> = HashSet::new();
 
     while let Some(pos) = stack.pop() {
         let ns : Vec<_> =    [NORTH, SOUTH, EAST, WEST]
         .iter()
-        .map(|d| checkdir2(a, *d, pos))
+        .map(|d| _checkdir2(a, *d, pos))
         .flatten()
-        .map(|d| next_node(a, pos, d, checkdir2)).map(
+        .map(|d| next_node(a, pos, d, _checkdir2)).map(
         |NextNodeResult {
              pos,
              dist,
@@ -252,13 +253,14 @@ fn getgraph(a: &Grid) -> Graph {
     }
     graph
 }
+
 pub fn part02(data: String) -> usize {
-    return  0;
-    //println!("Part 2...");
+    if true {return  0};
+    println!("Part 2...");
     let a = util::grid_to_a2d(&data);
     let end_pos = Pos(a.num_rows() as i32 - 1, a.num_columns() as i32 - 2);
     let graph = getgraph(&a);
-    let visited : HashSet<Pos> = HashSet::new();
+    let _visited : HashSet<Pos> = HashSet::new();
 
     println!("{:?}", graph);
     println!("{:?}", longest_path(graph, Pos(0,1), end_pos));
@@ -275,7 +277,7 @@ fn longest_path(g:Graph, start_vertex : Pos, end_vertex : Pos) -> isize {
     while let Some((st, this_distance))  = stack.pop() {
         let this_pos = st.pos;
         let mut this_visited = st.visited;
-        let this_state = State{pos :  this_pos, visited: this_visited.clone()};
+        let _this_state = State{pos :  this_pos, visited: this_visited.clone()};
         if this_pos == end_vertex { 
             ms = max(ms, this_distance);
             if ms == this_distance {

@@ -46,7 +46,7 @@ fn parse_input<'a>(data: &'a str) -> Vec<Vec<String>> {
 
 fn roll_any_dir(a: &mut Array2D<char>, dir: Dir) {
     let mut moveto_pos: Option<Pos>;
-    assert_eq!(a.num_columns(), a.num_rows());
+    //assert_eq!(a.num_columns(), a.num_rows());
     let grid_size = a.num_rows() as i32;
     for outer_index in 0..grid_size {
         moveto_pos = None;

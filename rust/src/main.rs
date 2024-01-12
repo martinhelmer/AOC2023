@@ -89,9 +89,9 @@ fn get_module_stuff(
 fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
     let h = HashMap::from([
         ("day01", (Some(55386), Some(54824))),
-        ("day02", (Some(2512), Some((67335)))),
-        ("day03", (None, None)),
-        ("day04", (None, None)),
+        ("day02", (Some(2512), Some(67335))),
+        ("day03", (Some(544664), Some(84495585))),
+        ("day04", (Some(32001), Some(5037841))),
         ("day05b", (Some(389056265), Some(137516820))),
         ("day06", (Some(3317888), Some(24655068))),
         ("day07", (Some(251106089), Some(249620106))),
@@ -106,7 +106,7 @@ fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
         ("day18", (Some(49578), Some(52885384955882))),
         ("day19", (Some(425811), Some(131796824371749))),
         ("day20", (Some(812721756), Some(233338595643977))),
-        ("day21", (Some(3768), None)),
+        ("day21", (Some(3768), Some(627960775905777))),
         ("day22", (Some(509), Some(102770))),
         ("day23", (Some(2178), Some(6486))),
         ("day24", (Some(20336), Some(677656046662770))),

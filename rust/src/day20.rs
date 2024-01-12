@@ -4,7 +4,7 @@ use std::collections::HashMap as MM;
 
 pub const NAME: &str = "Day 20: Pulse Propagation";
 
-pub fn example() -> String {
+pub fn _example() -> String {
     String::from(
         "broadcaster -> aa
 %aa -> inv, con
@@ -35,11 +35,11 @@ mod test_example {
     use super::*;
     #[test]
     fn part01() {
-        assert_eq!(super::part01(example()), 0);
+        assert_eq!(super::part01(_example()), 0);
     }
     #[test]
     fn part02() {
-        assert_eq!(super::part02(example()), 0);
+        assert_eq!(super::part02(_example()), 0);
     }
 }
 // types
@@ -168,9 +168,6 @@ fn push_button(m: &mut MM<&str, Module>) -> (usize, usize) {
 fn push_button2<'b>(nn: usize, m: &mut MM<&'b str, Module<'b>>) -> MM<&'b str, bool> {
     let mut q: Queue<Signal> = Queue::new();
     let mut hh = vec![];
-    let mut dt : Vec<usize>;
-    let mut st : Vec<usize>;
-    let mut tn : Vec<usize>;
     
     q.add(Signal {
         source: "button",
@@ -179,7 +176,7 @@ fn push_button2<'b>(nn: usize, m: &mut MM<&'b str, Module<'b>>) -> MM<&'b str, b
     })
     .unwrap();
     let mut n = 0;
-    let mut print_final = false;
+    //let mut print_final = false;
     while let Ok(signal) = q.remove() {
         n += 1;
         if let Some(target_module) = m.get_mut(signal.target) {
@@ -193,15 +190,15 @@ fn push_button2<'b>(nn: usize, m: &mut MM<&'b str, Module<'b>>) -> MM<&'b str, b
                 }
                 if *target_module.input_history.get("dt").unwrap() {
                     // println!("DT {}/{}", nn, n);
-                    print_final = true;
+                    // print_final = true;
                 }
                 if *target_module.input_history.get("st").unwrap() {
                     // println!("ST {}/{}", nn, n);
-                    print_final = true;
+                    //print_final = true;
                 }
                 if *target_module.input_history.get("tn").unwrap() {
                     // println!("TN {}/{}", nn, n);
-                    print_final = true;
+                    // print_final = true;
                 }
             }
         }
