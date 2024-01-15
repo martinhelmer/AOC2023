@@ -1,8 +1,8 @@
-use crate::util::{self, Dir, Pos, EAST, SOUTH, Node2, BoolHash};
+use crate::util::{self, BoolHash, Dir, Node2, Pos, EAST, SOUTH};
 use array2d::Array2D;
 use priority_queue::PriorityQueue;
 
-pub const NAME: &str = "Day 17: Clumsy Crucible";
+pub const NAME: &str = "Day 17: (FM) Clumsy Crucible";
 
 pub fn _example() -> String {
     String::from(
@@ -31,7 +31,7 @@ fn rr(dir: Dir) -> Dir {
 }
 
 pub fn data() -> String {
-    util::get_input("day17b.txt")
+    util::get_input("day17.txt")
 }
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone, Ord, PartialOrd)]
@@ -133,27 +133,6 @@ mod test_result {
     }
 }
 
-// struct BoolHash<'a, T> {
-//     v: Vec<bool>,
-//     ixf: &'a dyn Fn(&T) -> usize,
-// }
-
-// impl<'a, T> BoolHash<'a, T> {
-//     fn new(ixf: &'a dyn Fn(&T) -> usize, maxelem: &T) -> BoolHash<'a, T> {
-//         BoolHash {
-//             v: vec![false; ixf(maxelem)],
-//             ixf,
-//         }
-//     }
-//     fn set(&mut self, n: &T) {
-//         let ix = ((*self).ixf)(n);
-//         self.v[ix] = true;
-//     }
-//     fn get(&mut self, n: &T) -> bool {
-//         let ix = ((*self).ixf)(n);
-//         self.v[ix]
-//     }
-// }
 
 pub fn part01(data: String) -> usize {
     part0102b(data, nextnodes1b)
@@ -165,11 +144,8 @@ pub fn part02(data: String) -> usize {
 
 fn part0102b(data: String, nnf: fn(&Array2D<u32>, Node2, &Pos) -> Vec<(Node2, u32)>) -> usize {
     let a = util::num_to_a2d(&data);
-    let ifx = |n : &_| { BoolHash::<Node2>::ifx(a.num_columns(), n)};
-    let mut bh = BoolHash::<Node2>::new(
-        &ifx,
-        &BoolHash::<Node2>::maxelem(a.num_columns())
-    );
+    let ifx = |n: &_| BoolHash::<Node2>::ifx(a.num_columns(), n);
+    let mut bh = BoolHash::<Node2>::new(&ifx, &BoolHash::<Node2>::maxelem(a.num_columns()));
     let end_node = Pos((a.num_rows() - 1) as i32, (a.num_columns() - 1) as i32);
     let mut pq: PriorityQueue<Node2, isize> = PriorityQueue::with_capacity(1000);
     let mut this_node: Node2;

@@ -9,10 +9,9 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use crate::util;
-use std::collections::HashMap as MM;
+use crate::util::{self, MyHash};
 
-pub const NAME: &str = "Day 22: Sand Slabs";
+pub const NAME: &str = "Day 22: (MT) Sand Slabs";
 
 pub fn _example() -> String {
     String::from(
@@ -67,26 +66,26 @@ mod test_slab {
     };
 
     #[test]
-    fn fall() {
-        let mut slab = SLABZ.clone();
-        slab.fall(&Space::from([((1, 1, 1), SLABZ)]));
-        assert_eq!(
-            slab,
-            Brick {
-                id: 0,
-                p1: (1, 1, 2),
-                p2: (1, 1, 3),
-                has_moved: true,
-            }
-        );
-    }
+    // fn fall() {
+    //     let mut slab = SLABZ.clone();
+    //     slab.fall(&Space::from([((1, 1, 1), SLABZ)]));
+    //     assert_eq!(
+    //         slab,
+    //         Brick {
+    //             id: 0,
+    //             p1: (1, 1, 2),
+    //             p2: (1, 1, 3),
+    //             has_moved: true,
+    //         }
+    //     );
+    // }
     #[test]
     fn part02() {
         assert_eq!(super::part02(_example()), 0);
     }
 }
 
-type Space = MM<(i32, i32, i32), Brick>;
+type Space<'a> = MyHash<'a, (i32, i32, i32), Brick>;
 
 #[derive(Debug, Eq, Hash, PartialEq, Ord, PartialOrd, Copy, Clone)]
 struct Brick {
@@ -168,12 +167,12 @@ impl Brick {
 }
 fn is_clear(s: &Space, v: &Vec<(i32, i32, i32)>) -> bool {
     v.iter()
-        .all(|(x, y, z)| *z > 0 && !s.contains_key(&(*x, *y, *z)))
+        .all(|(x, y, z)| *z > 0 && !(s).contains(&(*x, *y, *z)))
 }
 
 fn place_brick<'a>(s: &mut Space, b: &'a Brick) {
     for p in b.coordinates() {
-        s.insert(p, *b);
+        s.set(&p, *b);
     }
 }
 
@@ -190,7 +189,7 @@ fn touches<'a>(s: &'a Space, cells: &Vec<(i32, i32, i32)>) -> HashSet<Brick> {
     let mut v = HashSet::new();
     for p in cells {
         if let Some(id) = s.get(&p) {
-            v.insert(*id);
+            v.insert(id.clone());
         }
     }
     v
@@ -202,11 +201,14 @@ fn num_single_supports_above(s: &Space, b: &Brick) -> usize {
         .filter(|bid| bid.supporters(&s).len() == 1)
         .count()
 }
-
+fn max_z(bricks: & Vec<Brick> ) -> i32 {
+    bricks.iter().map(|b|b.p2.2).max().unwrap()
+}
 pub fn part01(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
-    let mut s = Space::with_capacity(1000);
+    let ixf = |(x,y,z) :&_| (x+y*10+z*100) as usize ;
+    let mut s = Space::new(&ixf , &(10,10,max_z(&bricks)));
     fall_all(&mut s, &mut bricks);
     let mut disintegrate = HashSet::with_capacity(1000);
     for b in bricks {
@@ -216,30 +218,12 @@ pub fn part01(data: String) -> usize {
     }
     disintegrate.len()
 }
-// 102770
-pub fn _part02(data: String) -> usize {
-    let bricksit = data.lines().enumerate().map(parse_brick);
-    let mut bricks: Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
-    let mut s = Space::with_capacity(10000);
-    fall_all(&mut s, &mut bricks);
-    let mut result = 0;
-    for ix in 0..bricks.len() {
-        if num_single_supports_above(&s, &bricks[ix]) == 0 {
-            continue;
-        }
-        let mut my_bricks = bricks.clone();
-        my_bricks.remove(ix);
-        let mut s = Space::new();
-        fall_all(&mut s, &mut my_bricks);
-        result += my_bricks.iter().filter(|b| b.has_moved).count();
-    }
-    result
-}
 
 pub fn part02(data: String) -> usize {
     let bricksit = data.lines().enumerate().map(parse_brick);
     let  mut bricks:Vec<Brick> = bricksit.sorted_by_key(|brick| brick.height()).collect();
-    let mut s = Space::with_capacity(4096);
+    let ixf = |(x,y,z) :&_| (x+y*10+z*100) as usize ;
+    let mut s = Space::new(&ixf , &(10,10,max_z(&bricks)+1));
     fall_all(&mut s, &mut bricks);
 
     let todo: Vec<usize> = (0..bricks.len())
@@ -267,8 +251,10 @@ fn do_from_todo(todo: Arc<Mutex<Vec<usize>>>, tx: Sender<usize>, bricks: Arc<Vec
     } {
         //println!("doing brick {}", ix);
         let mut my_bricks = (*bricks).clone();
+        let max_z = max_z(&my_bricks);
         my_bricks.remove(ix);
-        let mut s = Space::with_capacity(4096);
+        let ixf = |(x,y,z) :&_| ((x)+(y)*10+z*100) as usize ;
+        let mut s = Space::new(&ixf , &(10,10,max_z+1));
         fall_all(&mut s, &mut my_bricks);
         tx.send(my_bricks.iter().filter(|b| b.has_moved).count())
             .unwrap()

@@ -251,7 +251,6 @@ pub struct MyHash<'a, T, U> {
     pub v: Vec<Option<U>>,
     ixf: &'a dyn Fn(&T) -> usize,
 }
-
 // BoolHash   
 pub type BoolHash<'a, T> = MyHash<'a, T, bool>;
 // pub struct BoolHash<'a, T> {
@@ -270,14 +269,14 @@ impl<'a, T, U : Copy > MyHash<'a, T, U> {
         let ix = ((*self).ixf)(n);
         self.v[ix] = Some(v);
     }
-    pub fn get(&mut self, n: &T) -> Option<U> {
+    pub fn get(&self, n: &T) -> Option<U> {
         let ix = ((*self).ixf)(n);
         self.v[ix]
     }
+    pub fn contains(&self, n: &T) -> bool { match self.get(n) { Some(_) => true, None => false} }
 }
 impl<'a, T> BoolHash<'a, T> {
     pub fn insert(&mut self, n: &T) { self.set(n, true); }
-    pub fn contains(&mut self, n: &T) -> bool { match self.get(n) { Some(_) => true, None => false} }
 
 }
 

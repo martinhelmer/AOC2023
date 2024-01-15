@@ -8,6 +8,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day05b;
+mod day05c;
 mod day06;
 mod day07;
 mod day08;
@@ -61,6 +62,7 @@ fn get_module_stuff(
         "day04" => (day04::NAME, day04::data, day04::part01, day04::part02),
         "day05" => (day05::NAME, day05::data, day05::part01, day05::part02),
         "day05b" => (day05b::NAME, day05b::data, day05b::part01, day05b::part02),
+        "day05c" => (day05c::NAME, day05c::data, day05c::part01, day05c::part02),
         "day06" => (day06::NAME, day06::data, day06::part01, day06::part02),
         "day07" => (day07::NAME, day07::data, day07::part01, day07::part02),
         "day08" => (day08::NAME, day08::data, day08::part01, day08::part02),
@@ -93,12 +95,15 @@ fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
         ("day03", (Some(544664), Some(84495585))),
         ("day04", (Some(32001), Some(5037841))),
         ("day05b", (Some(389056265), Some(137516820))),
+        ("day05c", (Some(389056265), Some(137516820))),    
         ("day06", (Some(3317888), Some(24655068))),
         ("day07", (Some(251106089), Some(249620106))),
         ("day08", (Some(23147), Some(22289513667691))),
         ("day09", (Some(1898776583), Some(1100))),
         ("day10", (Some(7005), Some(417))),
         ("day11", (Some(10292708), Some(790194712336))),
+        ("day12", (Some(7007), Some(3476169006222))),
+        ("day13", (Some(34911), Some(33183))),
         ("day14", (Some(109833), Some(99875))),
         ("day15", (Some(504036), Some(295719))),
         ("day16", (Some(7482), Some(7896))),
@@ -118,6 +123,41 @@ fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
         Some(i) => return *i,
     }
 }
+
+fn _get_expected(s: &str) -> (Option<usize>, Option<usize>) {
+    let h = HashMap::from([
+        ("day01", (Some(55386), Some(54824))),
+        ("day02", (Some(2512), Some(67335))),
+        ("day03", (Some(544664), Some(84495585))),
+        ("day04", (Some(32001), Some(5037841))),
+        ("day05c", (Some(462648396), Some(2520479))),
+        ("day06", (Some(3317888), Some(24655068))),
+        ("day07", (Some(251106089), Some(249620106))),
+        ("day08", (Some(23147), Some(22289513667691))),
+        ("day09", (Some(1898776583), Some(1100))),
+        ("day10", (Some(7005), Some(417))),
+        ("day11", (Some(10292708), Some(790194712336))),
+        ("day12", (Some(7007), Some(3476169006222))),
+        ("day14", (Some(109833), Some(99875))),
+        ("day15", (Some(504036), Some(295719))),
+        ("day16", (Some(7482), Some(7896))),
+        ("day17", (Some(722), Some(894))),
+        ("day18", (Some(49578), Some(52885384955882))),
+        ("day19", (Some(425811), Some(131796824371749))),
+        ("day20", (Some(812721756), Some(233338595643977))),
+        ("day21", (Some(3768), Some(627960775905777))),
+        ("day22", (Some(515), Some(101541))),
+        ("day23", (Some(2178), Some(6486))),
+        ("day24", (Some(21785), Some(554668916217145))),
+        ("day25", (Some(506202), None)),
+    ]);
+    let l = h.get(s);
+    match l {
+        None => return (None, None),
+        Some(i) => return *i,
+    }
+}
+
 
 fn color_result(r: usize, xpect : Option<usize>) -> String {
     let rs = format!("{:>18}", r);
@@ -167,7 +207,7 @@ fn main() {
     if args.len() < 2 {
         println!("Running ALL days");
         [
-            "day01", "day02", "day03", "day04", "day05b", "day06", "day07", "day08", "day09",
+            "day01", "day02", "day03", "day04", "day05c", "day06", "day07", "day08", "day09",
             "day10", "day11", "day12", "day13", "day14", "day15", "day16", "day17", "day18",
             "day19", "day20", "day21", "day22", "day23", "day24", "day25",
         ]

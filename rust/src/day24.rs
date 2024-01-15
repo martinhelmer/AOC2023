@@ -1,6 +1,7 @@
 
 use itertools::Itertools;
 use num::{BigInt, BigRational};
+use num_bigint::ToBigInt;
 // use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 
@@ -165,11 +166,12 @@ fn make_row(s: Hailstone3D) -> Vec<MyRat> {
     .collect_vec()
 }
 
-fn br2iv(v: Vec<Vec<MyRat>>) -> Vec<Vec<usize>> {
+fn br2iv(v: Vec<Vec<MyRat>>) -> Vec<Vec<BigInt>> {
+    //println!("{:?}", v );
     v.iter()
         .map(|v2| {
             v2.iter()
-                .map(|i| i.to_integer().to_usize().unwrap())
+                .map(|i| i.to_integer().to_bigint().unwrap())
                 .collect_vec()
         })
         .collect_vec()
@@ -177,6 +179,6 @@ fn br2iv(v: Vec<Vec<MyRat>>) -> Vec<Vec<usize>> {
 
 pub fn part02(data: String) -> usize {
     let stones = data.lines().map(parse_stone2).map(make_row).collect_vec();
-    let reduction = br2iv(linalg::gauss_jordan_reduction(stones[0..6].to_vec()));
-    reduction[3][5] + reduction[4][5]
+    let reduction = br2iv(linalg::gauss_jordan_reduction(stones[0..7].to_vec()));
+    (reduction[3][5].clone() + reduction[4][5].clone()).to_usize().unwrap()
 }

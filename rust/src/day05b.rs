@@ -61,17 +61,49 @@ impl Ord for SubMap {
         self.from.cmp(&other.from)
     }
 }
+// 1. *--* 
+// 2. *--*  |--| 
+// 3. *--|--*--|
+// 4. *--|--|--*
+// 5. |--*--*--|
+// 6. |--*--|--*
+// 7. |--| *--*
+mod test_range_on_map {
+    use super::*;
+    #[test]
+    fn a1() {
+        let d = example();
+        let lines: Vec<&str> = d.lines().collect();
+        let seeds: Vec<usize> = parse_seeds(&lines[0]);
+        let maps: Vec<Map> = parse_maps(&lines[1..]);
+        let m = &maps[0];
+        println!("{:?}\n{:?}",m, range_on_map((0,100), m));
+    }
+    #[test]
+    fn part02() {
+        assert_eq!(super::part02(data()), 137516820);
+    }
+}
 
-fn apply_submap_on_seedrange(m: SubMap, sr: (usize, usize)) -> Vec<(usize, usize)> {
-    // map out if range
-    if m.from.0 >= sr.1 || m.from.1 <= sr.0 {
-        return vec![sr];
+
+fn range_on_map((rfrom, rto): (usize, usize), m : &Map) -> Vec<(usize, usize)> {
+    //println!("called with ({},{}) =>  {:?}", rfrom, rto, m.submaps);
+    if m.submaps.len() == 0  {return vec![(rfrom, rto)]};   // 1. 
+    let first_map_from = m.submaps[0].from.0;
+    let first_map_to= m.submaps[0].from.1;
+    if (rto < first_map_from)  {return vec![(rfrom, rto)]}; // 2. 
+    if rfrom >= first_map_to { return range_on_map((rfrom, rto), &Map{submaps : m.submaps[1..].to_vec()})} // 7.
+    if rfrom < first_map_from { let mut v = vec![(rfrom,first_map_from-1 )];   //  3. && 4. 
+                                v.extend(range_on_map((first_map_from, rto), m));
+                                return v}
+    if rfrom < first_map_to && rto >= first_map_to { // 6. 
+        let mut v = range_on_map((rfrom, first_map_to-1), m);
+        v.extend(range_on_map((first_map_to, rto), &Map{submaps : m.submaps[1..].to_vec()}));
+        return v;
     }
-    // seed fully inside
-    if m.from.0 <= sr.0 && sr.1 <= m.from.1 {
-        return vec![(submap(&m, sr.0).unwrap(), submap(&m, sr.1 - 1).unwrap())];
-    }
-    vec![sr]
+    // 5. 
+    //println!("5.. calling submap({:?}, {}, {}",&m.submaps[0], rfrom, rto );
+    vec![(submap(&m.submaps[0], rfrom).unwrap(), submap(&m.submaps[0], rto).unwrap())]
 }
 
 #[derive(Debug, Clone)]
@@ -87,9 +119,7 @@ fn parse_submap(s: &str) -> SubMap {
     }
 }
 
-fn parse_map(s: &str) -> Map {
-    Map { submaps: vec![] }
-}
+
 fn submap(sm: &SubMap, x: usize) -> Option<usize> {
     match sm.from.0 <= x && x < sm.from.1 {
         true => Some(x - sm.from.0 + sm.to.0),
@@ -130,7 +160,8 @@ fn parse_seed_ranges(s: &str) -> Vec<(usize, usize)> {
 }
 
 fn parse_maps(s: &[&str]) -> Vec<Map> {
-    s.iter().fold(vec![], |mut acc, l| {
+    let mut vm = 
+    s.iter().fold(vec![], |mut acc : Vec<Map>, l| {
         if l.len() == 0 {
             return acc;
         }
@@ -142,7 +173,9 @@ fn parse_maps(s: &[&str]) -> Vec<Map> {
         let v: &mut Vec<SubMap> = &mut acc[lastindex].submaps;
         v.push(parse_submap(l));
         acc
-    })
+    });
+    for mut m in &mut vm { m.submaps.sort()};
+    vm
 }
 
 fn doseed(maps: &Vec<Map>, seed: usize) -> usize {
