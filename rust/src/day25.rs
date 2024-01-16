@@ -4,6 +4,7 @@ use crate::util::{self, djikstra, shortestpath_from_dj};
 use std::collections::{HashMap, HashSet};
 // use std::thread;
 // use std::time::Duration;
+use rustc_hash::FxHashMap as FastMap;
 
 pub const NAME: &str = "Day 25: Snowoverload";
 
@@ -46,7 +47,7 @@ mod test_example {
     }
 }
 
-type Graph<'a> = HashMap<&'a str, Vec<(&'a str, usize)>>;
+type Graph<'a> = FastMap<&'a str, Vec<(&'a str, usize)>>;
 
 fn get_graph<'a>(data: &'a String) -> Graph<'a> {
     // cmg: qnr nvd lhk bvb
@@ -56,7 +57,7 @@ fn get_graph<'a>(data: &'a String) -> Graph<'a> {
         (k, v)
     }
 
-    let mut g: Graph = Graph::new();
+    let mut g: Graph = Graph::default();
     g = data.lines().fold(g, |mut acc, r| {
         let (k, v) = parse_row(r);
         let vv: Vec<_> = v.iter().map(|x| (*x, 1)).collect();
@@ -95,7 +96,7 @@ pub fn part01(data: String) -> usize {
     let mut n = 0;
     for k in g.keys() {
         n+=1 ;
-        let (_d, p) = djikstra(&g, k);
+        let (_d, p) = djikstra(&g, k, false);
         for k2 in g.keys() {
             if k == k2  { continue;}
             let visited = shortestpath_from_dj(&p, k, k2).unwrap();

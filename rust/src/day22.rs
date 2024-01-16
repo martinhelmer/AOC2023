@@ -65,7 +65,7 @@ mod test_slab {
         has_moved: false,
     };
 
-    #[test]
+    // #[test]
     // fn fall() {
     //     let mut slab = SLABZ.clone();
     //     slab.fall(&Space::from([((1, 1, 1), SLABZ)]));

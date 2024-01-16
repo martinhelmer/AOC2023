@@ -34,17 +34,25 @@ mod linalg;
 mod util;
 
 fn runday(e: &String) {
-        let (n, data, p1, p2) = get_module_stuff(e);
-        println!("{}",n);
-        let (p1_expected, p2_expected) = get_expected(e);
-        let p1_now = Instant::now();
-        let _p1_result = p1(data());
-        let p1_elapsed = p1_now.elapsed();
-        println!("Part1 : {} in {:?}", color_result(_p1_result, p1_expected) , p1_elapsed);
-        let p2_now = Instant::now();
-        let _p2_result = p2(data());
-        let p2_elapsed = p2_now.elapsed();
-        println!("Part2 : {} in {:?}", color_result(_p2_result, p2_expected), p2_elapsed);
+    let (n, data, p1, p2) = get_module_stuff(e);
+    println!("{}", n);
+    let (p1_expected, p2_expected) = get_expected(e);
+    let p1_now = Instant::now();
+    let _p1_result = p1(data());
+    let p1_elapsed = p1_now.elapsed();
+    println!(
+        "Part1 : {} in {:?}",
+        color_result(_p1_result, p1_expected),
+        p1_elapsed
+    );
+    let p2_now = Instant::now();
+    let _p2_result = p2(data());
+    let p2_elapsed = p2_now.elapsed();
+    println!(
+        "Part2 : {} in {:?}",
+        color_result(_p2_result, p2_expected),
+        p2_elapsed
+    );
 }
 
 fn get_module_stuff(
@@ -95,7 +103,7 @@ fn get_expected(s: &str) -> (Option<usize>, Option<usize>) {
         ("day03", (Some(544664), Some(84495585))),
         ("day04", (Some(32001), Some(5037841))),
         ("day05b", (Some(389056265), Some(137516820))),
-        ("day05c", (Some(389056265), Some(137516820))),    
+        ("day05c", (Some(389056265), Some(137516820))),
         ("day06", (Some(3317888), Some(24655068))),
         ("day07", (Some(251106089), Some(249620106))),
         ("day08", (Some(23147), Some(22289513667691))),
@@ -158,12 +166,14 @@ fn _get_expected(s: &str) -> (Option<usize>, Option<usize>) {
     }
 }
 
-
-fn color_result(r: usize, xpect : Option<usize>) -> String {
+fn color_result(r: usize, xpect: Option<usize>) -> String {
     let rs = format!("{:>18}", r);
     if let Some(x) = xpect {
-        if r == x {return ansi_term::Colour::Green.paint(rs).to_string();}
-            else {return format!("{} ({})",ansi_term::Colour::Red.paint(rs).to_string(),x);}
+        if r == x {
+            return ansi_term::Colour::Green.paint(rs).to_string();
+        } else {
+            return format!("{} ({})", ansi_term::Colour::Red.paint(rs).to_string(), x);
+        }
     }
     rs
 }
@@ -206,12 +216,19 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("Running ALL days");
+        let t0 = Instant::now();
         [
             "day01", "day02", "day03", "day04", "day05c", "day06", "day07", "day08", "day09",
             "day10", "day11", "day12", "day13", "day14", "day15", "day16", "day17", "day18",
             "day19", "day20", "day21", "day22", "day23", "day24", "day25",
         ]
         .map(|s| runday2(&String::from(s)));
+        println!("-----------------------------------------+----------+----------+--");
+        println!(
+            "                                            {} | {:>8} |",
+            ansi_term::Colour::Purple.paint("Total :"),
+            ansi_term::Colour::Purple.paint(format!("{:>8}",t0.elapsed().as_micros()))
+        );
     } else {
         let day = &args[1];
         let now = Instant::now();

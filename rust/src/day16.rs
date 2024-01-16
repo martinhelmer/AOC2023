@@ -2,7 +2,7 @@ use crate::util::{self, ok_pos, Dir, Pos, EAST, NORTH, SOUTH, WEST, BoolHash};
 use array2d::Array2D;
 use std::{sync::{mpsc, Arc}, thread};
 
-pub const NAME: &str = "Day 16: (MT) The Floor Will Be Lava";
+pub const NAME: &str = "Day 16: (MT, FM) The Floor Will Be Lava";
 
 pub fn _example() -> String {
     String::from(".|...\\....

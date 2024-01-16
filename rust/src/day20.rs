@@ -165,10 +165,9 @@ fn push_button(m: &mut MM<&str, Module>) -> (usize, usize) {
     (lo_count, hi_count)
 }
 
-fn push_button2<'b>(nn: usize, m: &mut MM<&'b str, Module<'b>>) -> MM<&'b str, bool> {
+fn push_button2<'b>(m: &mut MM<&'b str, Module<'b>>) -> (usize, usize, usize, usize) {
     let mut q: Queue<Signal> = Queue::new();
-    let mut hh = vec![];
-    
+
     q.add(Signal {
         source: "button",
         target: "broadcaster",
@@ -176,44 +175,33 @@ fn push_button2<'b>(nn: usize, m: &mut MM<&'b str, Module<'b>>) -> MM<&'b str, b
     })
     .unwrap();
     let mut n = 0;
-    //let mut print_final = false;
+    let mut hh = 0;
+    let mut st = 0;
+    let mut tn = 0;
+    let mut dt = 0;
     while let Ok(signal) = q.remove() {
         n += 1;
         if let Some(target_module) = m.get_mut(signal.target) {
             process_signal(&mut q, signal, target_module);
             if target_module.id == "lv" {
                 if *target_module.input_history.get("hh").unwrap() {
-                    match hh.last() {
-                        None => hh.push(nn),
-                        Some(l) => if *l != nn { hh.push(n)}
-                    }
+                    hh = n;
                 }
                 if *target_module.input_history.get("dt").unwrap() {
-                    // println!("DT {}/{}", nn, n);
-                    // print_final = true;
+                    dt = n;
                 }
                 if *target_module.input_history.get("st").unwrap() {
-                    // println!("ST {}/{}", nn, n);
-                    //print_final = true;
+                    st = n;
                 }
                 if *target_module.input_history.get("tn").unwrap() {
-                    // println!("TN {}/{}", nn, n);
-                    // print_final = true;
+                    tn = n;
                 }
             }
         }
     }
-    // if print_final {
-    //     println!("FINAL {:?}", m.get("lv").unwrap().input_history);
-    // }
-    //println!("{}",n);
-    let h = m.get("lv").unwrap().input_history.clone();
-    h
+    (hh, dt, st, tn)
 }
-
-//player_stats.entry("mana").and_modify(|mana| *mana += 200).or_insert(100);
-pub fn part01(data: String) -> usize {
-    let modules: Vec<_> = data.lines().map(parse_node).collect();
+fn get_module_map(modules: Vec<Module<'_>>) -> MM<&str, Module> {
     let mut collected_inputs: MM<&str, Vec<&str>> = MM::new();
     for module in &modules[0..] {
         let k = &module.id;
@@ -239,9 +227,13 @@ pub fn part01(data: String) -> usize {
             m.insert(module.id, module);
         }
     }
+    m
+}
 
-    // println!("{:?}", m);
-    // run here
+pub fn part01(data: String) -> usize {
+    let modules: Vec<_> = data.lines().map(parse_node).collect();
+    let mut m = get_module_map(modules);
+
     let mut lo_count = 0;
     let mut hi_count = 0;
     for _i in 0..1000 {
@@ -254,59 +246,30 @@ pub fn part01(data: String) -> usize {
 
 pub fn part02(data: String) -> usize {
     let modules: Vec<_> = data.lines().map(parse_node).collect();
-    let mut collected_inputs: MM<&str, Vec<&str>> = MM::new();
-    for module in &modules[0..] {
-        let k = &module.id;
-        for output in &module.outputs {
-            collected_inputs
-                .entry(output)
-                .and_modify(|v| (*v).push(k))
-                .or_insert(vec![k]);
-        }
-    }
-    let mut m: MM<&str, Module> = MM::new(); // main module lookup map
-    for module in modules {
-        if let Some(inp_hist_1) = collected_inputs.get(&module.id) {
-            let hm: MM<&str, bool> = MM::from_iter(inp_hist_1.iter().map(|i| (*i, false)));
-            m.insert(
-                module.id,
-                Module {
-                    input_history: hm,
-                    ..module
-                },
-            );
-        } else {
-            m.insert(module.id, module);
-        }
-    }
+    let mut m = get_module_map(modules);
 
-    //println!("{:?}", m);
-    // run here
-    let mut st = 0;
-    let mut tn = 0;
-    let mut hh = 0;
-    let mut dt = 0;
-    for i in 0..100000 {
-        let hm = push_button2(i, &mut m);
-        //println!("{:?}", hm);
-        if st == 0 && *hm.get("st").unwrap() {
-            st = i + 1;
-            println!("st = {}", st)
-        };
-        if tn == 0 && *hm.get("tn").unwrap() {
-            tn = i + 1;
-            println!("tn = {}", tn)
-        };
-        if hh == 0 && *hm.get("hh").unwrap() {
-            hh = i + 1;
-            println!("hh = {}", hh)
-        };
-        if dt == 0 && *hm.get("dt").unwrap() {
-            dt = i + 1;
-            println!("dt = {}", dt)
-        };
+    let mut stv = 0;
+    let mut tnv = 0;
+    let mut hhv = 0;
+    let mut dtv = 0;
+    let mut n = 0;
+    while [stv, tnv, hhv, dtv].iter().any(|p| *p == 0) {
+        n += 1;
+        let (hh, dt, st, tn) = push_button2(&mut m);
+        if hh > 0 && hhv == 0 {
+            hhv = n
+        }
+        if tn > 0 && tnv == 0  {
+            tnv = n
+        }
+        if dt > 0 && dtv == 0  {
+            dtv = n
+        }
+        if st > 0 && stv == 0 {
+            stv = n
+        }
     }
-    0
+    stv * tnv * hhv * dtv
 }
 
 // &lv -> rx  rx = low -> all inputs of lv is high.

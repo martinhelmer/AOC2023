@@ -1,9 +1,15 @@
 #![warn(dead_code)]
-use std::{collections::{HashMap as MM, HashSet, BTreeSet}, cmp::max};
 use itertools::Itertools;
 use priority_queue::PriorityQueue;
+use std::{
+    cmp::max,
+    collections::HashSet,
+    // {BTreeSet, HashMap as MM, HashSet},
+};
 
-use crate::util::{self, rl, rr, Dir, Grid, Pos, EAST, NORTH, SOUTH, WEST};
+use rustc_hash::FxHashMap as MM;
+
+use crate::util::{self, djikstra, rl, rr, Dir, Grid, Pos, EAST, NORTH, SOUTH, WEST};
 
 pub const NAME: &str = "Day 23: A Long Walk";
 
@@ -87,15 +93,11 @@ fn _checkdir2(a: &Grid, d: Dir, p: Pos) -> Option<Dir> {
     if (p + d).0 < 0 || (p + d).0 > (a.num_rows() as i32 - 1) {
         return None;
     };
-    if match a[(p + d).as_a2d_index()] {
-        '.' | '>' | '<' | '^' | 'v' => true,
-        '#' => false,
+    match a[(p + d).as_a2d_index()] {
+        '.' | '>' | '<' | '^' | 'v' => Some(d),
+        '#' => None,
         _ => panic!("unexpected cell content"),
-    } {
-        Some(d)
-    } else {
-        None
-    }
+    } 
 }
 
 struct NextNodeResult {
@@ -150,7 +152,9 @@ fn next_node(
     }
 }
 
-type Graph = MM<Pos, Vec<(Pos, usize)>>;
+type Graph = MM<Pos, (u128, Vec<(Pos, usize)>)>;
+
+type Graph2 = MM<u128, Vec<(Node, usize)>>;
 
 // ***************
 fn part0102(graph: Graph) -> usize {
@@ -164,7 +168,7 @@ fn part0102(graph: Graph) -> usize {
     this_cost = -*thp;
 
     loop {
-        let next_nodes: &Vec<(util::Pos, usize)> = graph.get(&this_node).unwrap();
+        let (_, next_nodes) = graph.get(&this_node).unwrap();
         if next_nodes.len() == 0 {
             return (-this_cost) as usize;
         }
@@ -198,7 +202,7 @@ pub fn part01(data: String) -> usize {
     let a = util::grid_to_a2d(&data);
     let end_pos = Pos(a.num_rows() as i32 - 1, a.num_columns() as i32 - 2);
     let mut stack: Vec<(Pos, Dir)> = vec![(Pos(0, 1), SOUTH)];
-    let mut graph: Graph = MM::new();
+    let mut graph: Graph = MM::default();
     let mut visited: HashSet<(Pos, Dir)> = HashSet::new();
 
     while let Some((pos, dir)) = stack.pop() {
@@ -212,87 +216,127 @@ pub fn part01(data: String) -> usize {
         } = next_node(&a, pos, dir, checkdir);
         graph
             .entry(pos)
-            .and_modify(|nodes| nodes.push((next_pos, dist)))
-            .or_insert(vec![(next_pos, dist)]);
+            .and_modify(|(_, nodes)| nodes.push((next_pos, dist)))
+            .or_insert((0, vec![(next_pos, dist)]));
         for b in branches {
             stack.push((next_pos, b))
         }
         visited.insert((pos, dir));
     }
-    graph.insert(end_pos, vec![]);
+    graph.insert(end_pos, (0, vec![]));
     //print!("graph = {:?}, ({})", graph, graph.len());
     part0102(graph)
 }
 
-
-fn getgraph(a: &Grid) -> Graph {
+fn getgraph(a: &Grid, end_pos: &Pos) -> (Graph2, Node) {
     let mut stack: Vec<Pos> = vec![Pos(0, 1)];
-    let mut graph: Graph = MM::new();
+    let mut graph1: MM<Node, Vec<(Pos, usize)>> = MM::default();
     let mut visited: HashSet<Pos> = HashSet::new();
-
+    let mut idmap = MM::default();
+    let mut count = 0;
     while let Some(pos) = stack.pop() {
-        let ns : Vec<_> =    [NORTH, SOUTH, EAST, WEST]
-        .iter()
-        .map(|d| _checkdir2(a, *d, pos))
-        .flatten()
-        .map(|d| next_node(a, pos, d, _checkdir2)).map(
-        |NextNodeResult {
-             pos,
-             dist,
-             branches: _,
-         }| (pos, dist),
-    )
-    .collect();
+        if visited.contains(&pos) { continue;}
+        let ns: Vec<_> = [WEST, SOUTH, EAST, NORTH]
+            .iter()
+            .map(|d| _checkdir2(a, *d, pos))
+            .flatten()
+            .map(|d| next_node(a, pos, d, _checkdir2))
+            .map(
+                |NextNodeResult {
+                     pos,
+                     dist,
+                     branches: _,
+                 }| (pos, dist),
+            )
+            .collect();
         visited.insert(pos);
         for n in &ns[0..] {
             if !visited.contains(&n.0) {
                 stack.push(n.0);
             }
         }
-        graph.insert(pos, ns);
+        count += 1;
+        graph1.insert(count, ns);
+        assert_eq!(idmap.insert(pos, count), None, "when trying to insert {pos:?} into {count} ");
     }
-    graph
+    // println!("graph1: {graph1:?}\n\n");
+    // println!("idmap: {idmap:?}\n\n");
+    let end_node = idmap[end_pos];
+    let mut g2: Graph2 = Graph2::from_iter(
+        graph1
+            .iter()
+            .map(|(k, v)| (*k, (*v).iter().map(|(p, w)| (idmap[p], *w)).collect())),
+    );
+    let (steps_from_end, _) = djikstra(&g2, end_node, true);
+    assert!(g2[&end_node].len() == 1);
+    let (pre_end_node, _) = g2[&end_node][0];
+    g2.get_mut(&pre_end_node)
+        .unwrap()
+        .retain(|f| f.0 == end_node);
+    // println!("{pre_end_node} : {:?}", g2[&pre_end_node]);
+    // println!("{steps_from_end:?}  \n\n{g2:?}");
+    let mut g3 = Graph2::default();
+    for (k, v) in &g2 {
+        // println!("endnode = {end_node} k={k}");
+        let mut nv = v.clone();
+        if nv.len() == 3 {
+            nv.retain(|f| !(g2[&(f.0)].len() == 3 && steps_from_end[&f.0] > steps_from_end[k]));
+        }
+        g3.insert(*k, nv);
+    }
+    (g3, end_node)
 }
 
 pub fn part02(data: String) -> usize {
-    if true {return  0};
-    println!("Part 2...");
     let a = util::grid_to_a2d(&data);
     let end_pos = Pos(a.num_rows() as i32 - 1, a.num_columns() as i32 - 2);
-    let graph = getgraph(&a);
-    let _visited : HashSet<Pos> = HashSet::new();
-
-    println!("{:?}", graph);
-    println!("{:?}", longest_path(graph, Pos(0,1), end_pos));
-    0
+    let (graph, end_node) = getgraph(&a, &end_pos);
+    longest_path(graph, 1, end_node) as usize
 }
 
+type Node = u128;
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
-struct State { pos : Pos, visited : BTreeSet<Pos>}
+struct State {
+    pos: Pos,
+    visited: u128,
+}
+struct State2 {
+    node: Node,
+    visited: u128,
+}
 
-fn longest_path(g:Graph, start_vertex : Pos, end_vertex : Pos) -> isize {
-    // let mut max_distance : MM<State, isize> = MM::from([(State{pos : start_vertex, visited : BTreeSet::new()},0)]);
-    let mut stack : Vec<(State,isize)> = vec![(State{pos : start_vertex, visited : BTreeSet::new()},0)];
+fn longest_path(g: Graph2, start_vertex: Node, end_vertex: Node) -> isize {
+    let mut stack: Vec<(State2, isize)> = vec![(
+        State2 {
+            node: start_vertex,
+            visited: 0,
+        },
+        0,
+    )];
     let mut ms = 0;
-    while let Some((st, this_distance))  = stack.pop() {
-        let this_pos = st.pos;
+    while let Some((st, this_distance)) = stack.pop() {
+        let this_node = st.node;
         let mut this_visited = st.visited;
-        let _this_state = State{pos :  this_pos, visited: this_visited.clone()};
-        if this_pos == end_vertex { 
-            ms = max(ms, this_distance);
-            if ms == this_distance {
-             println!("end  : {}", ms) }
-        }
-        // if let Some(d) =  max_distance.get(&this_state)
-        //     {if *d > this_distance {continue}};
-        // max_distance.insert(this_state, this_distance);
 
-        for next_node in g.get(&this_pos).unwrap() {
-            if this_visited.contains(&next_node.0) { continue}
-            this_visited.insert(this_pos);
-            stack.push((State{pos: next_node.0,visited:this_visited.clone() }, this_distance + next_node.1 as isize))
+        if this_node == end_vertex {
+            ms = max(ms, this_distance);
+        }
+        let next_nodes = g.get(&this_node).unwrap();
+        this_visited = this_visited | 1 << this_node;
+
+        for (next_node, next_weight) in next_nodes {
+            if this_visited & (1 << next_node) > 0 {
+                continue;
+            }
+
+            stack.push((
+                State2 {
+                    node: *next_node,
+                    visited: this_visited,
+                },
+                this_distance + *next_weight as isize,
+            ))
         }
     }
-    println!("max_distance : {:?}",ms);
-    0
-    }
+    ms
+}
