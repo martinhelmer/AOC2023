@@ -3,6 +3,7 @@ use std::env;
 use std::time::Instant;
 
 mod day01;
+mod day01b;
 mod day02;
 mod day03;
 mod day04;
@@ -65,6 +66,7 @@ fn get_module_stuff(
 ) {
     match s.as_str() {
         "day01" => (day01::NAME, day01::data, day01::part01, day01::part02),
+        "day01b" => (day01b::NAME, day01b::data, day01b::part01, day01b::part02),
         "day02" => (day02::NAME, day02::data, day02::part01, day02::part02),
         "day03" => (day03::NAME, day03::data, day03::part01, day03::part02),
         "day04" => (day04::NAME, day04::data, day04::part01, day04::part02),
@@ -216,6 +218,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("Running ALL days");
+        println!("                                         |  1 (microseconds) 2 | ");
+        println!("-----------------------------------------+----------+----------+--");
         let t0 = Instant::now();
         [
             "day01", "day02", "day03", "day04", "day05c", "day06", "day07", "day08", "day09",
@@ -223,7 +227,7 @@ fn main() {
             "day19", "day20", "day21", "day22", "day23", "day24", "day25",
         ]
         .map(|s| runday2(&String::from(s)));
-        println!("-----------------------------------------+----------+----------+--");
+    println!("-----------------------------------------+----------+----------+--");
         println!(
             "                                            {} | {:>8} |",
             ansi_term::Colour::Purple.paint("Total :"),

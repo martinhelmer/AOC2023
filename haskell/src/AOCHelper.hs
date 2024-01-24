@@ -32,7 +32,7 @@ readInpT :: FilePath -> IO T.Text
 readInpT = TIO.readFile . (<>) "../input/"
 
 readInpByteSTring :: [Char] -> IO BS.ByteString
-readInpByteSTring = BS.readFile  . (++) "input/"
+readInpByteSTring = BS.readFile  . (++) "../input/"
 
 
 assertInt :: Int -> Int -> IO()
@@ -130,3 +130,11 @@ maximumOn f = maximumBy (compare `on` f)
 
 minimumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
 minimumOn f = minimumBy (compare `on` f)
+
+
+--- 
+type Pos = (Int, Int)
+type Dir = (Int, Int)
+
+tp:: Pos -> Dir -> Pos 
+tp (a,b) (c,d) = (a+c, b+d) 

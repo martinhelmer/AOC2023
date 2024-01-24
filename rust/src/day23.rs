@@ -97,7 +97,7 @@ fn _checkdir2(a: &Grid, d: Dir, p: Pos) -> Option<Dir> {
         '.' | '>' | '<' | '^' | 'v' => Some(d),
         '#' => None,
         _ => panic!("unexpected cell content"),
-    } 
+    }
 }
 
 struct NextNodeResult {
@@ -235,7 +235,9 @@ fn getgraph(a: &Grid, end_pos: &Pos) -> (Graph2, Node) {
     let mut idmap = MM::default();
     let mut count = 0;
     while let Some(pos) = stack.pop() {
-        if visited.contains(&pos) { continue;}
+        if visited.contains(&pos) {
+            continue;
+        }
         let ns: Vec<_> = [WEST, SOUTH, EAST, NORTH]
             .iter()
             .map(|d| _checkdir2(a, *d, pos))
@@ -257,7 +259,11 @@ fn getgraph(a: &Grid, end_pos: &Pos) -> (Graph2, Node) {
         }
         count += 1;
         graph1.insert(count, ns);
-        assert_eq!(idmap.insert(pos, count), None, "when trying to insert {pos:?} into {count} ");
+        assert_eq!(
+            idmap.insert(pos, count),
+            None,
+            "when trying to insert {pos:?} into {count} "
+        );
     }
     // println!("graph1: {graph1:?}\n\n");
     // println!("idmap: {idmap:?}\n\n");
@@ -306,6 +312,13 @@ struct State2 {
 }
 
 fn longest_path(g: Graph2, start_vertex: Node, end_vertex: Node) -> isize {
+    let max_gid = g.keys().max().unwrap();
+
+    // using a vector lookup instead of FxHashMap cuts the runtime in ~half
+    let mut mm = vec![vec![]; (max_gid + 1) as usize];
+    for i in 1..max_gid + 1 {
+        mm[i as usize] = g[&i].clone();
+    }
     let mut stack: Vec<(State2, isize)> = vec![(
         State2 {
             node: start_vertex,
@@ -321,7 +334,7 @@ fn longest_path(g: Graph2, start_vertex: Node, end_vertex: Node) -> isize {
         if this_node == end_vertex {
             ms = max(ms, this_distance);
         }
-        let next_nodes = g.get(&this_node).unwrap();
+        let next_nodes = &mm[this_node as usize];
         this_visited = this_visited | 1 << this_node;
 
         for (next_node, next_weight) in next_nodes {

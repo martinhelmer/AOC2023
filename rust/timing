@@ -1,0 +1,10 @@
+START=$(date +%s.%N)
+# do something #######################
+
+"$@" &> /dev/null
+
+#######################################
+END=$(date +%s.%N)
+DIFF=$( echo "scale=3; (${END} - ${START})*1000/1" | bc )
+echo "${DIFF}"
+

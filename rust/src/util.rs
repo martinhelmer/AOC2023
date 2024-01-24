@@ -306,6 +306,7 @@ impl<'a, U>  MyHash<'_, Node2, U> {
     pub fn maxelem(nc : usize) -> Node2 {
         Node2 {  pos: Pos(nc as i32 -1, nc as i32 -1), dir : WEST}
     }
+    
 }
 
 impl BoolHash<'_, (Pos, Dir)> {

@@ -1,14 +1,22 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Day01 (run) where
+module Day01 (run, runme) where
 
 import AOCHelper
 import Data.Char (digitToInt, isDigit)
 import Data.List (isPrefixOf)
 import Data.Maybe ( fromMaybe )
 
--- import Data.List
+import RunUtil (runMeString, RunMe)
+runme :: RunMe
+runme = runMeString "--- Day 1: Trebuchet?! ---" 
+              (readInp "day01.txt") 
+              (fmap toInteger . part1)
+              (Just 55386)
+              (fmap toInteger . part2)
+              (Just 54824)
+----------------------------------    
 
 digwords :: [String]
 digwords = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
@@ -33,6 +41,7 @@ finddigitforwards = finddigitforwards' digwords
 fd :: Bool -> String -> Int
 fd cw s = finddigitforwards cw s * 10 + finddigitbackwards cw s
 
+
 run :: IO ()
 run = do
     putStrLn "--- Day 1: Trebuchet?! ---"
@@ -48,3 +57,4 @@ part1 s = do
 part2 :: String -> IO Int
 part2 s = do
     return $ sum $ map (fd True) $ lines s
+

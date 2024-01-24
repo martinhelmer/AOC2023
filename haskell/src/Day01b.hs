@@ -1,15 +1,24 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Day01b (run) where
+module Day01b (run, runme) where
 
 import AOCHelper
 import Data.Char (digitToInt, isDigit)
-import Data.List (isPrefixOf)
-import Data.Maybe ( fromMaybe, fromJust, catMaybes, mapMaybe )
 import Data.Text (Text)
 import qualified Data.Text as T
--- import Data.List
+import Data.Maybe
+
+import RunUtil (runMeText, RunMe)
+runme :: RunMe
+runme = runMeText "--- Day 1: Trebuchet?! ---" 
+    (readInpT "day01.txt") 
+    (fmap toInteger . part1) 
+    (Just 55386) 
+    (fmap toInteger . part2) 
+    (Just 54824)
+
+----------------------
 
 digwords :: [Text]
 digwords = map T.pack ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]

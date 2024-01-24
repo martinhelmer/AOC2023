@@ -1,49 +1,121 @@
+{-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
-import System.Environment
-import Numeric (showFFloat)
-import Day01
-import Day01b
 
+import System.Environment
+import Data.List (sortBy)
+import Data.Function (on)
 import Control.Monad
+-- import Data.Time.Clock
 import System.TimeIt
+import Data.Bifunctor (first)
+import Data.Text.Format.Numbers (prettyI )
+import qualified Data.Text as T
+import Data.Text(Text)
+import Data.Text.IO as TI
+import qualified Data.Map as M
+import System.Console.Pretty (Color (..), color, Pretty)
+import RunUtil (RunMe(..), exec)
+
+import Day01 (runme)
+import Day01b
+import Day01c
+import Day02
+import Day03
+import Day04
+import Day05
+
+type RunResult = ((Double, Integer), (Double, Integer))
+type Runner = RunMe-> IO RunResult
+type Shower = RunMe -> RunResult -> IO Text
+
+rmap :: M.Map String RunMe
+rmap = M.fromList
+    [ ("_01", Day01.runme)
+    , ("_01b", Day01b.runme)
+    , ("01c", Day01c.runme)
+    , ("02", Day02.runme)
+    , ("03", Day03.runme)
+    , ("_03x", Day03.runex)
+    , ("04", Day04.runme)
+    , ("_05", Day05.runex)
+    , ("05", Day05.runme)
+    ]
+
+numruns :: Int
+numruns = 200
+
+doit :: Runner-> [RunMe] -> Shower -> IO ()
+doit runner jobs shower = forM_ jobs ( \job -> runner job >>= shower job >>= TI.putStrLn )
+
+mySort :: [(String, b)] -> [(String, b)]
+mySort = sortBy (compare `on` fst)
 
 sToR :: String -> IO ()
-sToR "ALL" = forM_ [timeIt Day01.run]  id
-sToR "01" = Day01.run
-sToR "01b" = Day01b.run
--- sToR "02" = Day02.run
--- sToR "03" = Day03.run
--- sToR "04" = Day04.run
--- sToR "05" = Day05.run
--- sToR "06" = Day06.run
--- sToR "07" = Day07.run
--- sToR "07b" = Day07b.run
--- sToR "08" = Day08.run
--- sToR "09" = Day09.run
--- sToR "10" = Day10.run
--- sToR "11" = Day11.run
--- sToR "12" = Day12.run
--- sToR "13" = Day13.run
--- sToR "14" = Day14.run
--- sToR "15" = Day15.run
--- sToR "16" = Day16.run
--- sToR "17" = Day17.run
--- sToR "18" = Day18.run
--- sToR "19" = Day19.run
--- sToR "20" = Day20.run
--- sToR "22" = Day22.run
--- sToR "23" = Day23.run
--- sToR "24" = Day24.run
--- sToR "24b" = Day24b.run
--- sToR "24c" = Day24c.run
-
-
-sToR _ = undefined
+sToR "ALL" = do
+        _ <- doit (runmany 1) [Day03.runme] showNothing
+        TI.putStrLn "Haskell AOC 2023                         |  1    (micros)    2 |   1 + 2  |"
+        TI.putStrLn "-----------------------------------------+----------+----------+----------+--"
+        doit (runmany numruns) (map snd . filter (\t -> '_' `notElem` fst t ) . mySort . M.assocs $ rmap) showTabular
+        TI.putStrLn "-----------------------------------------+----------+----------+----------+--"
+sToR s = doit (runmany 1) [rmap M.! s] showVerbose
 
 f :: [String] -> IO (Double, ())
-f args = timeItT ( sToR $ head args) 
+f args = timeItT (sToR $ head args)
 
 main :: IO ()
 main = do
     args <- getArgs
-    f args  >>= (\s -> print (1000000.0 * fst s) )
+    f args >>= \t -> TI.putStrLn $
+                        "                                                        "
+                        <> color Blue "Total:"
+                        <> " |"
+                        <> color Blue (showDur 9 (fst t / fromIntegral numruns))
+                        <> " |"
+
+---
+
+showDur :: Int -> Double -> Text
+showDur n  = T.justifyRight n ' ' . prettyI (Just '\'') . floor . (1000_000.0 *)
+
+showDur' :: Eq a => Int -> a -> Maybe a -> Double -> Text
+showDur' n r x = applyColor r x . showDur n
+
+showNothing :: RunMe -> ((Double, Integer), (Double, Integer)) -> IO Text
+showNothing _ _ = pure "Warming up ... \n"
+
+showTabular :: RunMe -> ((Double, Integer), (Double, Integer)) -> IO Text
+showTabular env ((t1, r1), (t2, r2)) = pure $  T.intercalate " |"
+    [ T.justifyLeft 40 ' ' . T.pack . runMeTitle $ env
+    , showDur' 9 r1 (runMeExpected1 env) t1
+    , showDur' 9 r2 (runMeExpected2 env) t2
+    , showDur 9 (t1 + t2)
+    , ""
+    ]
+
+applyColor :: (System.Console.Pretty.Pretty p, Eq a) => a -> Maybe a -> p -> p
+applyColor _ Nothing s = s
+applyColor r (Just i) s = color (if i == r then Green else Red ) s
+
+showResult :: (Eq a, Show a) => Int -> Maybe a -> a -> Text
+showResult n x r = applyColor r x . T.justifyRight n ' ' . T.pack . show $ r
+
+showVerbose :: RunMe -> ((Double, Integer), (Double, Integer)) -> IO Text
+showVerbose env ((t1, r1), (t2, r2)) = do
+    pure $ T.intercalate (T.pack "\n")
+        [T.pack (runMeTitle env)
+        , sr "Part 1" r1 (runMeExpected1 env) t1
+        , sr "Part 2" r2 (runMeExpected2 env) t2
+        , "                                           Both: " <> showDur 9 (t1 + t2)
+        ]
+        where sr p r xp t = T.unwords [ p,T.pack " = ", showResult 10 xp r , " (", T.justifyRight 15 ' ' . T.pack . show $ xp, ") dur:", showDur 10 t]
+
+runmany :: Int -> RunMe -> IO ((Double, Integer), (Double, Integer))
+runmany n env = do
+    (p1, p2) <- let go ((t1, _), (t2, _)) _ = do
+                        (t1', r1') <- timeItT (exec 1 $ runMeExecInfo env)
+                        (t2', r2') <- timeItT (exec 2 $ runMeExecInfo env)
+                        return ((t1 + t1', r1'), (t2 + t2', r2'))
+                in foldM go ((0.0, 0), (0.0, 0)) [1 .. n]
+    let divn  =  first ( / fromIntegral n)
+        in pure ( divn p1, divn p2)

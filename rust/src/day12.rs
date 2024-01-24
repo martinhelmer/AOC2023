@@ -5,12 +5,13 @@ use array2d::Array2D;
 use core::num;
 use itertools::{all, enumerate, Itertools};
 use std::cmp::{self, max};
-use std::collections::HashMap as QQ;
+//use std::collections::HashMap as QQ;
+use rustc_hash::FxHashMap as QQ;
 use std::collections::HashSet;
 use std::iter::zip;
 use std::str;
 
-pub const NAME: &str = "Day 12: Hot Springs";
+pub const NAME: &str = "Day 12: (FxHM) Hot Springs";
 
 pub fn data() -> String {
     util::get_input("day12.txt")
@@ -54,7 +55,7 @@ fn get_row(pat: String, nums: Vec<usize>) -> Row {
 pub fn part01(data: String) -> usize {
     let q = data.lines().map(|r| {
         let row = parse_row(r);
-        let n = nf3(&mut QQ::new(), &row.pat, &row.nums);
+        let n = nf3(&mut QQ::default(), &row.pat, &row.nums);
         n
     });
     let s = q.sum();
@@ -64,7 +65,7 @@ pub fn part01(data: String) -> usize {
 pub fn part02(data: String) -> usize {
     let q = data.lines().map(|r| {
         let row = parse_row2(r);
-        let mut qq = QQ::with_capacity(1024);
+        let mut qq = QQ::default();
         let n = nf3(&mut qq, &row.pat, &row.nums);
         //println!("{:?}",qq);        //println!("{}", qq.len());
         n
@@ -180,18 +181,18 @@ mod test {
     #[test]
     fn nf3_() {
         assert_eq!(
-            super::nf3(&mut QQ::new(), &"?###????????", &vec![3, 2, 1]),
+            super::nf3(&mut QQ::default(), &"?###????????", &vec![3, 2, 1]),
             10
         );
         assert_eq!(
-            super::nf3(&mut QQ::new(), &".??..??...?##.", &vec![1, 1, 3]),
+            super::nf3(&mut QQ::default(), &".??..??...?##.", &vec![1, 1, 3]),
             4
         );
         let r = super::parse_row2(".??..??...?##. 1,1,3");
-        assert_eq!(super::nf3(&mut QQ::new(), &r.pat, &r.nums), 16384);
+        assert_eq!(super::nf3(&mut QQ::default(), &r.pat, &r.nums), 16384);
         let r = super::parse_row2("?###???????? 3,2,1");
-        assert_eq!(super::nf3(&mut QQ::new(), &r.pat, &r.nums), 506250);
+        assert_eq!(super::nf3(&mut QQ::default(), &r.pat, &r.nums), 506250);
         let r = super::parse_row2("#?#???????#?.? 3,1,2,2");
-        assert_eq!(super::nf3(&mut QQ::new(), &r.pat, &r.nums), 58564);
+        assert_eq!(super::nf3(&mut QQ::default(), &r.pat, &r.nums), 58564);
     }
 }
