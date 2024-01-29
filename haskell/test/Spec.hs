@@ -1,2 +1,11 @@
+import Test.Hspec
+
+import qualified BSArraySpec
+
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = hspec spec
+
+spec :: Spec
+spec = do
+  describe "BSArray"     BSArraySpec.spec

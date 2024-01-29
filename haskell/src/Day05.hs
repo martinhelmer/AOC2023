@@ -114,7 +114,7 @@ parseSeeds2 = do
 parseMap :: Parser SMap
 parseMap = do
     _ <- endOfLine
-    title <- (T.pack . B.unpack <$> AP.takeWhile (/= ':'))
+    title <- T.pack . B.unpack <$> AP.takeWhile (/= ':')
     _ <- skipWhile (not . isDigit)
     ms <-  many1 mappings
     return $ SMap title (sort ms)
@@ -140,10 +140,10 @@ parse seedparser s =
 
 
 applyRangeToMap :: [(Range, Integer)] -> Range-> [Range]
-applyRangeToMap [] rng = [rng]    -- \*-*
+applyRangeToMap [] rng = [rng]                                             -- \*-*
 applyRangeToMap mr@(((mst, men), mto) : ranges) rng@(st, en)
   | en < mst = [rng]                                                       -- \*-*   |-| ..
-  | st > men = applyRangeToMap ranges rng                                 -- \|-| ... *-*
+  | st > men = applyRangeToMap ranges rng                                  -- \|-| ... *-*
   | st >= mst && en <= men = [(st + offset, en + offset)]                  -- \|*-*| ...
   | st < mst = (st, mst - 1) : applyRangeToMap mr (mst, en)                -- \*-|- ...
   | st <= men && en > men =                                                -- \|-*--|-* ..

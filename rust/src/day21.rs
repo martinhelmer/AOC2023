@@ -90,7 +90,8 @@ fn data2ints(data: &String) -> (Vec<BigUint>, Vec<BigUint>) {
 
 fn make_block(steps: usize, n: usize) -> Vec<BigUint> {
     let mhd = |i, j| {
-        (abs((j - ((steps - 1) / 2)) as isize) + abs((i - (steps - 1) / 2) as isize)) as usize
+        (abs(j as isize - ((steps as isize - 1) / 2)) 
+         + abs(i as isize- (steps as isize - 1) / 2)) as usize
     };
     let matc1or0 = |i, j| match mhd(i, j) <= n {
         true => BigUint::one(),

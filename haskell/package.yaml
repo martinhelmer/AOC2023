@@ -1,4 +1,4 @@
-name:                haskell
+name:                AOC2023
 version:             0.1.0.0
 github:              "githubuser/haskell"
 license:             BSD-3-Clause
@@ -35,6 +35,8 @@ dependencies:
 - format-numbers
 - pretty-terminal
 - raw-strings-qq
+- fgl 
+- unordered-containers
 
 
 ghc-options:
@@ -61,7 +63,7 @@ executables:
     - -with-rtsopts=-N
     - -O2
     dependencies:
-    - haskell
+    - AOC2023
 
 tests:
   haskell-test:
@@ -72,4 +74,5 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - haskell
+    - AOC2023
+    - hspec

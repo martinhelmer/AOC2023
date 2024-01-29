@@ -24,6 +24,10 @@ import Day02
 import Day03
 import Day04
 import Day05
+import Day06
+import Day08
+import Day10
+
 
 type RunResult = ((Double, Integer), (Double, Integer))
 type Runner = RunMe-> IO RunResult
@@ -40,10 +44,16 @@ rmap = M.fromList
     , ("04", Day04.runme)
     , ("_05", Day05.runex)
     , ("05", Day05.runme)
+    , ("_06", Day06.runex)
+    , ("06", Day06.runme)
+    , ("_08", Day08.runex)
+    , ("08", Day08.runme)
+    , ("_10", Day10.runex)
+    , ("10", Day10.runme)
     ]
 
 numruns :: Int
-numruns = 200
+numruns = 1
 
 doit :: Runner-> [RunMe] -> Shower -> IO ()
 doit runner jobs shower = forM_ jobs ( \job -> runner job >>= shower job >>= TI.putStrLn )
