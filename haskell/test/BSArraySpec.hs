@@ -45,3 +45,11 @@ spec = do
       BS.lookup bsa (1,2) `shouldBe` 'F'
     it " .row works correct" $ do
       BS.row bsa 1 `shouldBe` "DEF"
+
+  describe "intIndex" $ do 
+    let bsa = BS.makeBSarray  "ABC\nDEF\n"
+    it "0,0 -> 0" $ do 
+      BS.intIndex bsa (0,0) `shouldBe` 0 
+    it "1,2 -> 6" $ do 
+      BS.intIndex bsa (1,2) `shouldBe` 5 
+  

@@ -3,11 +3,11 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use tuple-section" #-}
 
-module Algorithms (aStar, neighborsFromMap, neighborsFromMapWithDist, Distance (..), distify) where
+module Algorithms (aStar, Distance (..), distify) where
 
 import Data.Bifunctor (second)
-import Data.HashMap (Map)
 import qualified Data.HashMap as M
+import qualified Data.HashMap.Strict as SM
 import Data.HashPSQ (HashPSQ)
 import qualified Data.HashPSQ as PSQ
 import Data.Hashable (Hashable)
@@ -40,11 +40,11 @@ instance NFData Distance where
   rnf Infinity = ()
   rnf (Distance q) = q `seq` ()
 
-type GMap a = Map a Int
+type GMap a = SM.HashMap a Int
 type OpenSet a = HashPSQ a Int ()
 
 lookUp :: (Hashable k, Ord k) => GMap k -> k -> Distance
-lookUp m i = maybe Infinity Distance (M.lookup i m)
+lookUp m i = maybe Infinity Distance (SM.lookup i m)
 
 -- | 'aStar': does stuff stuff: 
 --
@@ -55,7 +55,7 @@ aStar :: (Hashable a, Ord a, Show a, NFData a) => [a] -> (a -> Bool) -> (a -> In
 aStar startnodes goalpred h nf = aStar' openSet gScores goalpred h nf
   where
     openSet = PSQ.fromList $ map (\sn -> (sn, h sn, ())) startnodes
-    gScores = M.fromList $ map (\sn -> (sn, 0)) startnodes
+    gScores = SM.fromList $ map (\sn -> (sn, 0)) startnodes
 
 aStar' ::
     (Hashable a, Ord a, Show a, NFData a) =>
@@ -71,7 +71,7 @@ aStar' openSet gScores goalpred h neighbors
     | otherwise = aStar' updatedOpenSet gScores'' goalpred h neighbors
   where
     (current, _, _, poppedOpenSet) = fromMaybe undefined (PSQ.minView openSet)
-    currentG = gScores M.!  current
+    currentG = gScores SM.!  current
 
     (updatedOpenSet, gScores'') =  let n = neighbors current in foldl' go (poppedOpenSet, gScores) n
 
@@ -79,7 +79,7 @@ aStar' openSet gScores goalpred h neighbors
         | Distance tentdist >= lookUp gs nn = (os, gs)
         | otherwise =
             ( PSQ.insert nn (tentdist  + h nn) () os
-            , M.insert nn tentdist gs
+            , SM.insert nn tentdist gs
             )
       where
         tentdist = currentG +  d
@@ -88,8 +88,8 @@ aStar' openSet gScores goalpred h neighbors
 distify :: [(a, Int)] -> [(a, Distance)]
 distify l = second Distance <$> l
 
-neighborsFromMapWithDist :: (Hashable a, Ord a) => Map a [(a, Int)] -> a -> [(a, Distance)]
-neighborsFromMapWithDist m a = distify (m M.! a)
+-- neighborsFromMapWithDist :: (Hashable a, Ord a) => Map a [(a, Int)] -> a -> [(a, Distance)]
+-- neighborsFromMapWithDist m a = distify (m M.! a)
 
-neighborsFromMap :: (Hashable a, Ord a) => Map a [a] -> a -> [(a, Distance)]
-neighborsFromMap m a = (,Distance 1) <$> (m M.! a)
+-- neighborsFromMap :: (Hashable a, Ord a) => Map a [a] -> a -> [(a, Distance)]
+-- neighborsFromMap m a = (,Distance 1) <$> (m M.! a)

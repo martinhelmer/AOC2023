@@ -25,8 +25,17 @@ import Day03
 import Day04
 import Day05
 import Day06
+import Day07
 import Day08
+import Day09
 import Day10
+import Day11
+import Day12
+import Day13 
+import Day14 
+import Day15
+import Day16
+import Day17 
 
 
 type RunResult = ((Double, Integer), (Double, Integer))
@@ -46,10 +55,28 @@ rmap = M.fromList
     , ("05", Day05.runme)
     , ("_06", Day06.runex)
     , ("06", Day06.runme)
+    , ("_07", Day07.runex)
+    , ("07", Day07.runme)
     , ("_08", Day08.runex)
     , ("08", Day08.runme)
+    , ("_09", Day09.runex)
+    , ("09", Day09.runme)
     , ("_10", Day10.runex)
     , ("10", Day10.runme)
+    , ("_11", Day11.runex)
+    , ("11", Day11.runme)
+    , ("_12", Day12.runex)
+    , ("12", Day12.runme)
+    , ("_13", Day13.runex)
+    , ("13", Day13.runme)
+    , ("_14", Day14.runex)
+    , ("14", Day14.runme)
+    , ("_15", Day15.runex)
+    , ("15", Day15.runme)
+    , ("_16", Day16.runex)
+    , ("16", Day16.runme)
+    , ("_17", Day17.runex)
+    , ("17", Day17.runme)
     ]
 
 numruns :: Int
@@ -63,7 +90,7 @@ mySort = sortBy (compare `on` fst)
 
 sToR :: String -> IO ()
 sToR "ALL" = do
-        _ <- doit (runmany 1) [Day03.runme] showNothing
+        _ <- doit (runmany 1) [Day01c.runme] showNothing
         TI.putStrLn "Haskell AOC 2023                         |  1    (micros)    2 |   1 + 2  |"
         TI.putStrLn "-----------------------------------------+----------+----------+----------+--"
         doit (runmany numruns) (map snd . filter (\t -> '_' `notElem` fst t ) . mySort . M.assocs $ rmap) showTabular

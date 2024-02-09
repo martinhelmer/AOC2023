@@ -17,7 +17,7 @@ import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 
 import AOCHelper (readInpByteSTring)
-import Algorithms (aStar, Distance (Distance), neighborsFromMapWithDist, distify)
+import Algorithms (aStar, Distance (Distance), distify)
 import BSArray (BSArray, makeBSarray)
 import qualified BSArray as BSA
 import Data.Char (digitToInt, ord)
@@ -113,7 +113,7 @@ neighbors1 :: BSArray -> State -> [(State, Int)]
 neighbors1 bsa = neighbors bsa (take 3)
 
 neighbors2 :: BSArray -> State -> [(State, Int)]
-neighbors2 bsa s = let n = neighbors bsa (take 7 . drop 3) s in n `deepseq` n 
+neighbors2 bsa s = let n = neighbors bsa (take 7 . drop 3) s in n 
 
 neighbors ::BSArray -> ([(Pos, Int)] -> [(Pos, Int)]) -> State -> [(State, Int)]
 neighbors bsa selector (State p o) = (first (`State` (not' o)))
