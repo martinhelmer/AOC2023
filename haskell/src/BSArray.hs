@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module BSArray (BSArray
                , rows
                , cols
@@ -6,24 +7,34 @@ module BSArray (BSArray
                , makeBSarray
                , lookupMaybe
                , BSArray.elemIndex
-               , flatIndex
+               , BSArray.elemIndices
+               , intIndex
+               , stringColsFromLeft
+               , bsColsFromLeft
+               , unpackRows
                ) where
 import Data.ByteString (ByteString)
+import Data.Hashable
 import qualified Data.ByteString.Char8 as B
 
 type Index = (Int, Int)
 
-newtype Row = Row Int
-newtype Col = Col Int
+newtype Row = Row Int deriving (Eq, Show)
+newtype Col = Col Int deriving (Eq, Show)
 
 data BSArray = BSArray
     { contents :: ByteString
     , _rows :: Row
     , _cols :: Col
-    }
+    } deriving (Eq)
 
 instance  Show BSArray where
-    show bsa = show (contents bsa)
+    show bsa = B.unpack $  contents bsa
+
+instance  Hashable BSArray where
+    hashWithSalt i (BSArray bs _ _ ) = hashWithSalt i bs
+
+
 
 rows :: BSArray -> Int
 rows (BSArray _ (Row rows') (Col _)) = rows'
@@ -41,7 +52,7 @@ makeBSarray s = BSArray s (Row rows') (Col cols')
 
 
 lookup :: BSArray -> Index ->  Char
-lookup (BSArray s _ (Col cols')) (ir, ic) | ir < 0 = error "Negative row index!" 
+lookup (BSArray s _ (Col cols')) (ir, ic) | ir < 0 = error "Negative row index!"
                                           | ic < 0 = error "Negative column index!"
                                           | otherwise = B.index s (ic + ir * (cols' +1))
 
@@ -50,16 +61,35 @@ lookupMaybe a@(BSArray _ (Row rows') (Col cols')) ix@(ir, ic)
     | ir < 0 || ir >= rows' || ic < 0 || ic >= cols' = Nothing
     | otherwise = Just (BSArray.lookup a ix)
 
+rawIndex2Index :: BSArray -> Int -> (Int, Int)
+rawIndex2Index bs ix = (ix `div` (cols bs + 1 ), ix `rem` (cols bs + 1 ))
+
+-- refactor (switch arguments to conform to haskell standard)
 elemIndex :: BSArray -> Char -> Maybe Index
 elemIndex bs c = case i of
         Nothing -> Nothing
-        Just ix -> Just (ix `div` (cols bs + 1 ), ix `rem` (cols bs + 1 ))
+        Just ix -> Just (rawIndex2Index bs ix)
     where i = B.elemIndex c (contents bs)
 
-flatIndex :: BSArray -> (Int, Int) -> Int
-flatIndex bs (row', col) = rows bs * row' + col
+elemIndices :: Char -> BSArray -> [Index]
+elemIndices  c bs = map (rawIndex2Index bs) $ B.elemIndices c (contents bs)
+
+intIndex :: BSArray -> Index -> Int
+intIndex bs (row', col) = (cols bs * row') + col
 
 row :: BSArray -> Int -> ByteString
 row bs rownum = let cols' = cols bs in
         B.take cols' . B.drop (rownum*(cols' +1)) $ contents bs
-    
+
+stringColsFromRight :: BSArray -> [String]
+stringColsFromRight bs = map (\col' ->  map (\row' -> BSArray.lookup bs (row', col')) [0.. (rows bs -1)]  ) (reverse [0..(cols bs -1)])
+
+stringColsFromLeft :: BSArray -> [String]
+stringColsFromLeft bs = map (\col' ->  map (\row' -> BSArray.lookup bs (row', col')) [0.. (rows bs -1)]  ) [0..(cols bs -1)]
+
+bsColsFromLeft :: BSArray -> [ByteString]
+bsColsFromLeft bs = map (\col' -> B.pack $ map (\row' -> BSArray.lookup bs (row', col')) [0.. (rows bs -1)]  ) [0..(cols bs -1)]
+
+
+unpackRows :: BSArray -> [ByteString]
+unpackRows = B.lines . contents

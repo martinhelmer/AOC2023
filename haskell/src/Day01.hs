@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Day01 (run, runme) where
 

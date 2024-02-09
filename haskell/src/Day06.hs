@@ -22,16 +22,11 @@ import Data.Attoparsec.ByteString.Char8 (
 import qualified Data.Attoparsec.ByteString.Char8 as AP
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B
-import Data.List (foldl', sort )
-import Data.Text (Text)
-import qualified Data.Text as T
 
 import RunUtil (RunMe, runMeByteString)
 import AOCHelper (readInpByteSTring)
-import Text.ParserCombinators.ReadP (skipSpaces)
 import Data.Either (fromRight)
 import Data.Maybe (fromJust)
-import Debug.Trace (trace)
 
 example :: ByteString
 example =
@@ -45,9 +40,9 @@ runex =
     "Day x - example"
     (return example)
     part1
-    (Nothing)
+    Nothing
     part2
-    (Nothing)
+    Nothing
 
 runme :: RunMe
 runme =
@@ -70,11 +65,11 @@ parseRow :: ByteString -> Parser [Int]
 parseRow leadIn = string leadIn *> many1 (skipSpace *> decimal) <* (endOfLine <|> endOfInput)
 
 parseRow2 :: ByteString -> Parser [Int]
-parseRow2 leadIn = 
-  string leadIn 
-  *> (toIntList <$> many1 ( skipSpace *> AP.takeWhile1 isDigit ))  
+parseRow2 leadIn =
+  string leadIn
+  *> (toIntList <$> many1 ( skipSpace *> AP.takeWhile1 isDigit ))
   <* (endOfLine <|> endOfInput)
-  where toIntList = flip (:) [] . fst . fromJust . B.readInt  . B.concat 
+  where toIntList = flip (:) [] . fst . fromJust . B.readInt  . B.concat
 
 parse :: (ByteString -> Parser [Int]) -> ByteString -> [(Time, Distance)]
 parse rowparser s = fromRight undefined $ parseOnly (parseInput rowparser <* endOfInput ) s

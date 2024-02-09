@@ -2,6 +2,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 module Dayx (runme, runex) where
 
@@ -19,22 +22,26 @@ import Data.Attoparsec.ByteString.Char8 (
   skipSpace,
   skipWhile,
  )
-import qualified Data.Attoparsec.ByteString.Char8 as AP
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as B
-import Data.List (foldl', sort )
-import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.ByteString.Char8 as BS
 
 
 import RunUtil (RunMe, runMeByteString)
-import AOCHelper (readInpByteSTring)
-import BSArray
+import AOCHelper (readInpByteSTring, Pos, Dir, tp)
+import qualified BSArray as BSA
 
 example :: ByteString
 example =
-  [r|
-|]
+  [r|.|...\....
+|.-.\.....
+.....|-...
+........|.
+..........
+.........\
+..../.\\..
+.-.-/..|..
+.|....-|.\
+..//.|....|]
 
 runex :: RunMe
 runex =

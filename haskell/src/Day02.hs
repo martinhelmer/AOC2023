@@ -4,8 +4,8 @@
 
 module Day02 (runme) where
 
-import RunUtil (runMeText, RunMe, runMeByteString)
-import AOCHelper (readInpT, readInpByteSTring)
+import RunUtil (RunMe, runMeByteString)
+import AOCHelper (readInpByteSTring)
 import Data.Maybe (mapMaybe )
 import Control.Applicative
 import Data.Attoparsec.ByteString.Char8 (

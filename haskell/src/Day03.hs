@@ -2,22 +2,27 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use bimap" #-}
+{-# LANGUAGE BangPatterns #-}
+
+
 module Day03 (runme, runex) where
 
 import Text.RawString.QQ
 
-import AOCHelper (readInpByteSTring, Pos, Dir, tp)
+import AOCHelper (readInpByteSTring, Pos, tp)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B
 import Data.Char (isDigit, digitToInt)
-import Data.List (foldl', intercalate, nub)
+import Data.List (foldl')
 import Data.Maybe (mapMaybe)
 import RunUtil (RunMe, runMeByteString)
 import Data.Bits (shiftL, (.&.), (.|.))
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import qualified Data.IntSet as IS
-import qualified Data.IntSet as IS
+import qualified Data.IntMap as IM
 
 example :: ByteString
 example = [r|467..114..
@@ -105,23 +110,24 @@ neighbors p = map (tp p) [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0),
 ss :: M.Map Pos Integer -> Pos -> S.Set Integer
 ss nummap p = S.fromList (mapMaybe (`M.lookup` nummap) (neighbors p) )
 
-ss' :: ((Int,Int) -> Int) -> M.Map Int Int -> Pos -> IS.IntSet
-ss' p2i nummap p = IS.fromList (mapMaybe ((`M.lookup` nummap) . p2i) (neighbors p) )
+ss' :: ((Int,Int) -> Int) -> IM.IntMap Int -> Pos -> IS.IntSet
+ss' p2i nummap p = IS.fromList (mapMaybe ((`IM.lookup` nummap) . p2i) (neighbors p) )
 
 
 part2 :: ByteString -> IO Integer
 part2 s = do
-    let p2intf = p2int (B.length . head $ (B.lines s)) 
+    let p2intf = p2int (B.length . head $ B.lines s)
     let (_, (nums, asts)) = foldl' (\(ix, acc) l -> (ix+1, tconc acc (dayParseRow (== '*') ix l))) (0, ([], []))$ B.lines s
     let astmap = S.fromList asts
-    let nummap = M.fromList nums
-    let nummap' = M.fromList $ map (\(p,i) -> (p2intf p,fromInteger i)) nums
-    let q = filter ((==) 2 . IS.size ) $ map ((ss' p2intf) nummap') (S.toList astmap)
+    -- let nummap = M.fromList nums
+    let nummap' = IM.fromList $ map (\(p,i) -> (p2intf p,fromInteger i)) nums
+    let q = filter ((==) 2 . IS.size ) $ map (ss' p2intf nummap') (S.toList astmap)
     --let q = filter ((==) 2 . length ) $ map ((ss) nummap) (S.toList astmap)
 
-    return $ sum . map (\s -> product  (map toInteger $ IS.toList s)) $ q
+    return $ sum . map (\s' -> product  (map toInteger $ IS.toList s')) $ q
 
-p2int :: Int -> (Int, Int) -> Int 
+p2int :: Int -> (Int, Int) -> Int
 p2int width (row, col) = row * width + col
 
+int2p :: Integral b => b -> b -> (b, b)
 int2p width i = (i `div` width, i `rem` width)

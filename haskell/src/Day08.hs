@@ -2,6 +2,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns -Wunused-top-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Day08 (runme, runex) where
 
@@ -25,7 +26,6 @@ import Data.List (scanl', foldl1')
 import qualified Data.HashMap.Strict as HM
 import Data.HashMap.Strict (HashMap)
 import Data.Either (fromRight)
-
 
 runex :: RunMe
 runex =
@@ -100,13 +100,13 @@ stepstoZ graph instructions sn = toInteger
 
 part1 :: ByteString -> IO Integer
 part1 s = do
-  let (instructions, graph) = parse parseInput s
+  let (!instructions, !graph) = parse parseInput s
   return . stepstoZ graph instructions
          $ "AAA"
 
 part2 :: ByteString -> IO Integer
 part2 s = do
-  let (instructions, graph) = parse parseInput s
+  let (!instructions, !graph) = parse parseInput s
   return . foldl1' lcm
          . map (stepstoZ graph instructions)
          . filter ((==) 'A' . B.last)
