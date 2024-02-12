@@ -75,6 +75,11 @@ directions o  = case o of
     Vertical -> [NORTH, SOUTH]
     Horizontal -> [EAST, WEST]
 
+directions' :: Orientation -> [(Int, Int)]
+directions' o  = case o of
+    Vertical -> [(-1,0), (1,0)]
+    Horizontal -> [(0,1), (0,-1)]
+
 newtype Pos = Pos (Int, Int) deriving (Eq, Show, Ord)
 data Dir = NORTH | EAST | SOUTH | WEST deriving (Eq, Show, Enum)
 
@@ -117,14 +122,29 @@ neighbors2 bsa s = let n = neighbors bsa (take 7 . drop 3) s in n
 
 neighbors ::BSArray -> ([(Pos, Int)] -> [(Pos, Int)]) -> State -> [(State, Int)]
 neighbors bsa selector (State p o) = (first (`State` (not' o)))
-    <$> concatMap (selector . scan bsa p)
-        (directions (not' o))
+    <$> concatMap (selector . scan bsa p 0)
+        (directions' (not' o))
 
-scan :: BSArray -> Pos -> Dir -> [(Pos, Int)]
-scan bsa p d = drop 1 . fromJust . sequence . takeWhile (isJust) . iterate f $ Just (p,0)
-      where f (Just (p',s)) = v2s <$> BSA.lookupMaybe bsa (fromPos nextp)
-              where !nextp = p' .->. d
-                    v2s v =  let ss = s + ((ord v - ord '0')) in (nextp, ss)
+
+scan :: BSArray -> Pos -> Int -> (Int,Int) -> [(Pos, Int)]
+scan bsa p@(Pos (r,c)) s (dr, dc) = case BSA.lookupMaybe bsa nextp of 
+                        Nothing -> [] 
+                        Just v ->  let !ss = s + ord v - ord '0' in  (Pos nextp, ss):(scan bsa (Pos nextp) ss (dr, dc))
+        where nextp =  (r+dr, c+dc)
+
+
+-- scan :: BSArray -> Pos -> (Int,Int) -> [(Pos, Int)]
+-- scan bsa p (dr, dc) = drop 1 . fromJust . sequence . takeWhile (isJust) . iterate f $ Just (p,0)
+--       where f (Just (Pos (r,c),s)) = v2s <$> BSA.lookupMaybe bsa  nextp
+--               where nextp =  (r+dr, c+dc)
+--                     v2s v =  let ss = s + ((ord v - ord '0')) in (Pos nextp, ss)
+
+-- scan' :: BSArray -> Pos -> (Int,Int) -> [(Pos, Int)]
+-- scan' bsa p (dr, dc) = drop 1 . fromJust . sequence . takeWhile (isJust) . iterate f $  Just (p,0)
+--       where f (Just (Pos (r ,c),s)) = case BSA.lookupMaybe bsa nextp of 
+--                         Nothing -> Nothing 
+--                         Just v -> Just (Pos nextp, s + ord v - ord '0')
+--                         where nextp =  (r+dr, c+dc)
 
 find bsa nf h = let sn = [(State (Pos (0,0)) Vertical), (State (Pos (0,0)) Horizontal)] 
         in aStar sn hasArrived h (nf bsa )

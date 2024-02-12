@@ -36,7 +36,8 @@ import Day14
 import Day15
 import Day16
 import Day17 
-
+import Day18
+import Day19 
 
 type RunResult = ((Double, Integer), (Double, Integer))
 type Runner = RunMe-> IO RunResult
@@ -77,6 +78,10 @@ rmap = M.fromList
     , ("16", Day16.runme)
     , ("_17", Day17.runex)
     , ("17", Day17.runme)
+    , ("_18", Day18.runex)
+    , ("18", Day18.runme)
+    , ("_19", Day19.runex)
+    , ("19", Day19.runme)
     ]
 
 numruns :: Int

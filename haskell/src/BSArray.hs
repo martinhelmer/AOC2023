@@ -50,16 +50,15 @@ makeBSarray s = BSArray s (Row rows') (Col cols')
             (Just l ,True)  -> (l, B.length s `div` (l+1))
             (Just l, False) -> (l, (B.length s+1) `div` (l+1))
 
-
 lookup :: BSArray -> Index ->  Char
 lookup (BSArray s _ (Col cols')) (ir, ic) | ir < 0 = error "Negative row index!"
                                           | ic < 0 = error "Negative column index!"
                                           | otherwise = B.index s (ic + ir * (cols' +1))
 
 lookupMaybe :: BSArray -> Index -> Maybe Char
-lookupMaybe a@(BSArray _ (Row rows') (Col cols')) ix@(ir, ic)
+lookupMaybe a@(BSArray s (Row rows') (Col cols')) (ir, ic)
     | ir < 0 || ir >= rows' || ic < 0 || ic >= cols' = Nothing
-    | otherwise = Just (BSArray.lookup a ix)
+    | otherwise = Just (B.index s (ic + ir * (cols' +1)))
 
 rawIndex2Index :: BSArray -> Int -> (Int, Int)
 rawIndex2Index bs ix = (ix `div` (cols bs + 1 ), ix `rem` (cols bs + 1 ))
