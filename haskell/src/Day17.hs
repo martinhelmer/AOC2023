@@ -8,6 +8,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE BangPatterns #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 module Day17 (runme, runex) where
 

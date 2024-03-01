@@ -23,7 +23,7 @@ import AOCHelper (readInpByteSTring)
 import Data.Map (Map, (!))
 import qualified Data.Map as M
 import RunUtil (RunMe, runMeByteString)
-
+import Data.Ord (Ordering(..))
 runex :: RunMe
 runex =
   runMeByteString
@@ -72,7 +72,8 @@ hdj{m>838:A,pv}
 data ARef = Acc | Rej | Ref ByteString deriving (Show)
 
 ----
-
+ordering :: Parser Ordering
+ordering = (GT <$ char '>' ) <|> (LT <$ char '<')
 newline :: Parser Char
 newline = AP.char '\n'
 

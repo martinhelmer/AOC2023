@@ -1,4 +1,6 @@
-module PosDir ((.+.), (.*->.), fromPos, toPos, Pos(..), Dir(..), mhdist)
+{-# OPTIONS_GHC -Wno-unused-imports #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+module PosDir ((.+.), (.*->.), (.->.) , fromPos, toPos, rl, rr, Pos(..), Dir(..), mhdist)
 where
 
 import Data.Bifunctor (bimap)
@@ -17,6 +19,14 @@ directions o  = case o of
 newtype Pos = Pos (Int, Int) deriving (Eq, Show, Ord)
 data Dir = NORTH | EAST | SOUTH | WEST deriving (Eq, Show, Enum, Ord)
 
+rl :: Dir -> Dir
+rl NORTH = WEST 
+rl SOUTH = EAST 
+rl EAST = NORTH 
+rl WEST = SOUTH 
+
+rr :: Dir -> Dir
+rr = rl . rl . rl 
 
 (.+.) :: Pos -> Pos -> Pos
 (.+.) (Pos (a, b)) (Pos (c, d)) = Pos (a + c, b + d)

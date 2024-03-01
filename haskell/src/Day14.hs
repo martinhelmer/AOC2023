@@ -11,7 +11,7 @@ import Text.RawString.QQ
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B
-import qualified Data.HashMap as HM
+import qualified Data.HashMap.Strict as HM
 import Data.Hashable (hash)
 import Data.List (foldl', transpose, intercalate)
 import Data.Maybe (mapMaybe)

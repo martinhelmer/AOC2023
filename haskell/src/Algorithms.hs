@@ -6,7 +6,7 @@
 module Algorithms (aStar, Distance (..), distify) where
 
 import Data.Bifunctor (second)
-import qualified Data.HashMap as M
+import qualified Data.HashMap.Strict as M
 import qualified Data.HashMap.Strict as SM
 import Data.HashPSQ (HashPSQ)
 import qualified Data.HashPSQ as PSQ
