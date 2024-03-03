@@ -1,9 +1,11 @@
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module PosDir ((.+.), (.*->.), (.->.) , fromPos, toPos, rl, rr, Pos(..), Dir(..), mhdist)
 where
 
 import Data.Bifunctor (bimap)
+import Control.DeepSeq (NFData)
 
 data Orientation = Vertical | Horizontal deriving (Show, Ord, Eq, Enum)
 
@@ -16,7 +18,7 @@ directions o  = case o of
     Vertical -> [NORTH, SOUTH]
     Horizontal -> [EAST, WEST]
 
-newtype Pos = Pos (Int, Int) deriving (Eq, Show, Ord)
+newtype Pos = Pos (Int, Int) deriving (Eq, Show, Ord, NFData)
 data Dir = NORTH | EAST | SOUTH | WEST deriving (Eq, Show, Enum, Ord)
 
 rl :: Dir -> Dir
