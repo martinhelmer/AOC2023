@@ -12,9 +12,12 @@ module BSArray (BSArray
                , stringColsFromLeft
                , bsColsFromLeft
                , unpackRows
+               , rawIndex2Index
+               , rawIndex
                ) where
 import Data.ByteString (ByteString)
 import Data.Hashable
+import PosDir 
 import qualified Data.ByteString.Char8 as B
 
 type Index = (Int, Int)
@@ -63,6 +66,7 @@ lookupMaybe a@(BSArray s (Row rows') (Col cols')) (ir, ic)
 rawIndex2Index :: BSArray -> Int -> (Int, Int)
 rawIndex2Index bs ix = (ix `div` (cols bs + 1 ), ix `rem` (cols bs + 1 ))
 
+
 -- refactor (switch arguments to conform to haskell standard)
 elemIndex :: BSArray -> Char -> Maybe Index
 elemIndex bs c = case i of
@@ -75,6 +79,10 @@ elemIndices  c bs = map (rawIndex2Index bs) $ B.elemIndices c (contents bs)
 
 intIndex :: BSArray -> Index -> Int
 intIndex bs (row', col) = (cols bs * row') + col
+
+rawIndex :: BSArray -> Index -> Int
+rawIndex bs (row', col) = ((cols bs +1 ) * row') + col
+
 
 row :: BSArray -> Int -> ByteString
 row bs rownum = let cols' = cols bs in

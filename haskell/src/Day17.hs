@@ -65,21 +65,20 @@ runme =
     (Just 773)
 
 ---
-data Orientation = Vertical | Horizontal deriving (Show, Ord, Eq, Enum)
+type Orientation = Int 
 
 not' :: Orientation -> Orientation
-not' Vertical = Horizontal
-not' Horizontal = Vertical
+not' o = 1-o 
 
 directions :: Orientation -> [Dir]
 directions o  = case o of
-    Vertical -> [NORTH, SOUTH]
-    Horizontal -> [EAST, WEST]
+    1 -> [NORTH, SOUTH]
+    0 -> [EAST, WEST]
 
 directions' :: Orientation -> [(Int, Int)]
 directions' o  = case o of
-    Vertical -> [(-1,0), (1,0)]
-    Horizontal -> [(0,1), (0,-1)]
+    1 -> [(-1,0), (1,0)]
+    0 -> [(0,1), (0,-1)]
 
 newtype Pos = Pos (Int, Int) deriving (Eq, Show, Ord)
 data Dir = NORTH | EAST | SOUTH | WEST deriving (Eq, Show, Enum)
@@ -102,18 +101,14 @@ dToPos WEST = Pos (0, -1)
 (.->.) :: Pos -> Dir -> Pos
 (.->.) p d = p .+. dToPos d
 
-mhdist :: Pos -> Pos -> Int 
-mhdist (Pos (r, c)) (Pos (r', c')) = abs (r-r') + abs (c - c')
+mhdist :: BSArray -> Pos' -> Pos' -> Int 
+mhdist bsa p1 p2 = let (c,r) = BSA.rawIndex2Index bsa p1;
+                        (c',r') = BSA.rawIndex2Index bsa p2
+                      in  abs (r-r') + abs (c - c')
 
 ---
 
-data State = State Pos Orientation deriving (Show, Ord, Eq)
-instance Hashable State where
-    hashWithSalt :: Int -> State -> Int
-    hashWithSalt i (State p o)= hashWithSalt i (fromPos p,fromEnum o)
-
-instance NFData State where 
-  rnf (State (Pos (a,b)) o) = rnf a `seq` rnf b 
+type State = Int 
    
 neighbors1 :: BSArray -> State -> [(State, Int)]
 neighbors1 bsa = neighbors bsa (take 3)
@@ -121,51 +116,42 @@ neighbors1 bsa = neighbors bsa (take 3)
 neighbors2 :: BSArray -> State -> [(State, Int)]
 neighbors2 bsa s = let n = neighbors bsa (take 7 . drop 3) s in n 
 
-neighbors ::BSArray -> ([(Pos, Int)] -> [(Pos, Int)]) -> State -> [(State, Int)]
-neighbors bsa selector (State p o) = (first (`State` (not' o)))
-    <$> concatMap (selector . scan bsa p 0)
-        (directions' (not' o))
+neighbors ::BSArray -> ([(Pos', Int)] -> [(Pos', Int)]) -> State -> [(State, Int)]
+neighbors bsa selector s = (\(p,d) -> (p*2+(1-o),d))
+    <$> concatMap (selector . scan bsa (p) 0)
+        (directions' (1 - o))
+    where p = s `div` 2 
+          o = s `rem` 2 
 
+type Pos' = Int 
 
-scan :: BSArray -> Pos -> Int -> (Int,Int) -> [(Pos, Int)]
-scan bsa p@(Pos (r,c)) s (dr, dc) = case BSA.lookupMaybe bsa nextp of 
+scan :: BSArray -> Pos' -> Int -> (Int,Int) -> [(Pos', Int)]
+scan bsa p s (dr, dc) = case BSA.lookupMaybe bsa nextp of 
                         Nothing -> [] 
-                        Just v ->  let !ss = s + ord v - ord '0' in  (Pos nextp, ss):(scan bsa (Pos nextp) ss (dr, dc))
-        where nextp =  (r+dr, c+dc)
+                        Just v ->  let !ss = s + ord v - ord '0' in  (BSA.rawIndex bsa nextp, ss):(scan bsa (BSA.rawIndex bsa nextp) ss (dr, dc))
+        where nextp =  let (r,c) = BSA.rawIndex2Index bsa p  in (r+dr, c+dc)
 
 
--- scan :: BSArray -> Pos -> (Int,Int) -> [(Pos, Int)]
--- scan bsa p (dr, dc) = drop 1 . fromJust . sequence . takeWhile (isJust) . iterate f $ Just (p,0)
---       where f (Just (Pos (r,c),s)) = v2s <$> BSA.lookupMaybe bsa  nextp
---               where nextp =  (r+dr, c+dc)
---                     v2s v =  let ss = s + ((ord v - ord '0')) in (Pos nextp, ss)
-
--- scan' :: BSArray -> Pos -> (Int,Int) -> [(Pos, Int)]
--- scan' bsa p (dr, dc) = drop 1 . fromJust . sequence . takeWhile (isJust) . iterate f $  Just (p,0)
---       where f (Just (Pos (r ,c),s)) = case BSA.lookupMaybe bsa nextp of 
---                         Nothing -> Nothing 
---                         Just v -> Just (Pos nextp, s + ord v - ord '0')
---                         where nextp =  (r+dr, c+dc)
-
-find bsa nf h = let sn = [(State (Pos (0,0)) Vertical), (State (Pos (0,0)) Horizontal)] 
+find :: BSArray -> (BSArray -> Pos' -> [(Pos', Int)]) -> (Pos' -> Int) -> Distance
+find bsa nf h = let sn = [(1), (0)] 
         in aStar sn hasArrived h (nf bsa )
-        where hasArrived (State p _) = (p == endpos bsa)
+        where hasArrived s = ((s `div` 2) == endpos bsa)
 
 
-endpos :: BSArray -> Pos
-endpos bsa = Pos (BSA.rows bsa -1, BSA.cols bsa -1  )
+endpos :: BSArray -> Pos'
+endpos bsa = BSA.rawIndex bsa (BSA.rows bsa -1, BSA.cols bsa -1  )
 
 
 part1 :: ByteString -> IO Integer
 part1 s = do
   let bsa = makeBSarray s 
-  let h (State p _) = mhdist p (endpos bsa) 
+  let h s = mhdist bsa (s `div` 2) (endpos bsa) 
   let (Distance v) = find bsa neighbors1 h
   return . toInteger $ v
 
 part2 :: ByteString -> IO Integer
 part2 s=  do   
   let bsa = makeBSarray s 
-  let h (State p _) =  mhdist p (endpos bsa) 
+  let h s =  mhdist bsa (s `div` 2) (endpos bsa) 
   let (Distance r) = find bsa neighbors2 h
   return . toInteger $ r

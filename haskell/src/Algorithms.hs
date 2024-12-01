@@ -6,15 +6,11 @@
 module Algorithms (aStar, Distance (..), distify) where
 
 import Data.Bifunctor (second)
-import qualified Data.HashMap.Strict as M
-import qualified Data.HashMap.Strict as SM
-import Data.HashPSQ (HashPSQ)
-import qualified Data.HashPSQ as PSQ
-import Data.Hashable (Hashable)
+import qualified Data.IntPSQ as PSQ
+import Data.IntMap.Strict as IM 
 import Data.List (foldl')
 import Data.Maybe (fromMaybe)
 import Control.DeepSeq (deepseq, NFData (rnf))
-import Control.Parallel.Strategies (NFData)
 
 -- import Debug.Trace (trace)
 
@@ -40,46 +36,43 @@ instance NFData Distance where
   rnf Infinity = ()
   rnf (Distance q) = q `seq` ()
 
-type GMap a = SM.HashMap a Int
-type OpenSet a = HashPSQ a Int ()
+type GMap = IM.IntMap Int
+type OpenSet = PSQ.IntPSQ Int ()
 
-lookUp :: (Hashable k, Ord k) => GMap k -> k -> Distance
-lookUp m i = maybe Infinity Distance (SM.lookup i m)
+
+lookUp :: IntMap Int -> Key -> Distance
+lookUp m i = maybe Infinity Distance (IM.lookup i m)
 
 -- | 'aStar': does stuff stuff: 
 --
 -- > startnode goalpred h neighbors
 --
 -- /Since: 1.1.0.0/
-aStar :: (Hashable a, Ord a, Show a, NFData a) => [a] -> (a -> Bool) -> (a -> Int) -> (a -> [(a, Int)]) -> Distance
+
+aStar :: [Int] -> (Int -> Bool) -> (Int -> Int) -> (Int -> [(Int, Int)]) -> Distance
 aStar startnodes goalpred h nf = aStar' openSet gScores goalpred h nf
   where
-    openSet = PSQ.fromList $ map (\sn -> (sn, h sn, ())) startnodes
-    gScores = SM.fromList $ map (\sn -> (sn, 0)) startnodes
+    openSet = PSQ.fromList $ Prelude.map (\sn -> (sn, h sn, ())) startnodes
+    gScores = IM.fromList $ Prelude.map (\sn -> (sn, 0)) startnodes
 
-aStar' ::
-    (Hashable a, Ord a, Show a, NFData a) =>
-    OpenSet a -> -- openSet
-    GMap a -> -- gScores
-    (a -> Bool) -> -- goalnode
-    (a -> Int) -> -- h
-    (a -> [(a, Int)]) -> -- nf
-    Distance -- distance
+
+
+aStar' :: OpenSet -> GMap -> (Int -> Bool) -> (Key -> Int) -> (Int -> [(Int, Int)]) -> Distance
 aStar' openSet gScores goalpred h neighbors
     | PSQ.null openSet = Infinity
     | goalpred current = Distance currentG
     | otherwise = aStar' updatedOpenSet gScores'' goalpred h neighbors
   where
     (current, _, _, poppedOpenSet) = fromMaybe undefined (PSQ.minView openSet)
-    currentG = gScores SM.!  current
+    currentG = gScores IM.! current
 
-    (updatedOpenSet, gScores'') =  let n = neighbors current in foldl' go (poppedOpenSet, gScores) n
+    (updatedOpenSet, gScores'') =  let n = neighbors current in Data.List.foldl' go (poppedOpenSet, gScores) n
 
     go (os, gs) (nn, d)
         | Distance tentdist >= lookUp gs nn = (os, gs)
         | otherwise =
             ( PSQ.insert nn (tentdist  + h nn) () os
-            , SM.insert nn tentdist gs
+            , IM.insert nn tentdist gs
             )
       where
         tentdist = currentG +  d
